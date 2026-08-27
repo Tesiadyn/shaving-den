@@ -4,6 +4,10 @@
  *
  *   node scripts/dev-session.mjs            # 造 session 並印出 cookie
  *   node scripts/dev-session.mjs bob        # 造第二個使用者，用來驗證資料隔離
+ *
+ * session 是直接寫進本機 D1 的，所以請在 `pnpm dev` 跑起來之後才 mint；
+ * 若剛清掉 .wrangler 重建，第一次 mint 出來的 cookie 有可能還沒被 dev server 看到，
+ * API 會回 401 —— 再 mint 一次即可。
  */
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
