@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["./worker-configuration.d.ts"],
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "composite": true,
+    "paths": { "@/*": ["./src/*"] }
+  },
+  "include": ["src/server", "src/db", "src/shared", "worker-configuration.d.ts"]
+}

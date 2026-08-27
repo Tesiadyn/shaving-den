@@ -1,0 +1,50 @@
+{
+  "name": "shaving-den",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "deploy": "npm run build && wrangler deploy -c dist/shaving_den/wrangler.json",
+    "typecheck": "tsc -b --noEmit",
+    "cf-typegen": "wrangler types",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply shaving-den --local",
+    "db:migrate:remote": "wrangler d1 migrations apply shaving-den --remote",
+    "auth:generate": "better-auth generate --config src/server/auth-cli.ts"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.9.0",
+    "@tanstack/react-query": "^5.102.3",
+    "better-auth": "^1.7.1",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.13.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router": "^8.3.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.53.1",
+    "@cloudflare/workers-types": "^5.20260825.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^26.3.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "@vitejs/plugin-react": "^6.1.0",
+    "drizzle-kit": "^0.31.10",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2",
+    "wrangler": "^4.125.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "workerd",
+      "@tailwindcss/oxide",
+      "sharp"
+    ]
+  }
+}

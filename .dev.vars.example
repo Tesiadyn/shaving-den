@@ -1,0 +1,15 @@
+# 複製成 .dev.vars 後填入本機開發用的值（.dev.vars 已被 gitignore）
+# 正式環境改用: wrangler secret put <NAME>
+
+# openssl rand -base64 32
+BETTER_AUTH_SECRET=
+
+# 本機用 http://localhost:5173，正式用 https://<your-worker>.workers.dev
+BETTER_AUTH_URL=http://localhost:5173
+
+# Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client ID (Web)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# https://serpapi.com/manage-api-key （免費 250 次/月；留空則停用「打品名搜圖」那一層）
+SERPAPI_KEY=

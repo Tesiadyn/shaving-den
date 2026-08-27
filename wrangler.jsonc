@@ -1,0 +1,35 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "shaving-den",
+  "main": "./src/server/index.ts",
+  "compatibility_date": "2026-08-25",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+
+  // SPA 由 Static Assets 直接發送（不啟動 Worker、不受 10ms CPU 與 3MiB 限制）。
+  // 只有 /api/* 會先進 Worker。
+  "assets": {
+    "directory": "./dist/client",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "shaving-den",
+      // 執行 `wrangler d1 create shaving-den` 後把回傳的 id 貼進來。
+      // 本機開發 (`pnpm dev`) 用模擬的 D1，不需要真實 id。
+      "database_id": "PLACEHOLDER_RUN_WRANGLER_D1_CREATE",
+      "migrations_dir": "./migrations"
+    }
+  ],
+
+  "r2_buckets": [
+    {
+      "binding": "IMAGES",
+      "bucket_name": "shaving-den-images"
+    }
+  ]
+}

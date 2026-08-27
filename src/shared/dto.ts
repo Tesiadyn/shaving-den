@@ -1,0 +1,82 @@
+import type { ImageSource, ItemCategory, ItemStatus } from "./domain";
+
+/**
+ * API 對外的資料形狀。時間一律用 epoch ms（number），不用 ISO 字串 ——
+ * 前端要排序、比較、丟進 Date 都不必再 parse。
+ * 這層存在的意義是不讓 Drizzle 的資料列形狀外洩成公開契約。
+ */
+export type ItemDTO = {
+  id: string;
+  category: ItemCategory;
+  brand: string;
+  name: string;
+  scentNotes: string | null;
+  notes: string | null;
+  quantity: number;
+  unit: string;
+  status: ItemStatus;
+  productUrl: string | null;
+  imageUrl: string | null;
+  imageSource: ImageSource | null;
+  /** 累計使用次數，由刮鬍日誌推導。 */
+  usesCount: number;
+  /** 目前這一片／這一塊的使用次數（刀片才有意義）。 */
+  currentUnitUses: number;
+  bladeInstalledAt: number | null;
+  acquiredAt: number | null;
+  createdAt: number;
+};
+
+export type ShaveDTO = {
+  id: string;
+  shavedAt: number;
+  rating: number | null;
+  notes: string | null;
+  items: Array<Pick<ItemDTO, "id" | "category" | "brand" | "name" | "imageUrl">>;
+};
+
+export type ImageCandidate = {
+  url: string;
+  thumbnailUrl: string;
+  title: string | null;
+  sourcePage: string | null;
+};
+
+export type BladeLife = {
+  itemId: string;
+  brand: string;
+  name: string;
+  /** 已經用完並換掉的刀片數。0 代表還沒換過，算不出平均。 */
+  completedRuns: number;
+  /** 每片平均能刮幾次，只計算已經換掉的刀片。 */
+  averageShaves: number | null;
+  /** 目前這一片已經用了幾次。 */
+  currentRunShaves: number;
+  quantityLeft: number;
+};
+
+export type TopItem = {
+  itemId: string;
+  category: ItemCategory;
+  brand: string;
+  name: string;
+  usesCount: number;
+};
+
+export type LowStockItem = {
+  itemId: string;
+  category: ItemCategory;
+  brand: string;
+  name: string;
+  quantity: number;
+  unit: string;
+};
+
+export type Stats = {
+  totalShaves: number;
+  shavesLast30Days: number;
+  itemCount: number;
+  bladeLife: BladeLife[];
+  topItems: TopItem[];
+  lowStock: LowStockItem[];
+};
