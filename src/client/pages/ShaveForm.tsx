@@ -2,23 +2,30 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
+import { CategoryIcon } from "../components/CategoryIcon";
+import { ItemThumb } from "../components/ItemThumb";
 import { Spinner } from "../components/Spinner";
 import {
   Button,
   EmptyState,
   ErrorNote,
   Field,
-  Select,
+  RatingInput,
   Textarea,
   cx,
 } from "../components/ui";
 import {
   CATEGORY_LABELS,
   ITEM_CATEGORIES,
+  SHAVE_RATINGS,
   type ItemCategory,
+  type ShaveRatingKey,
 } from "@/shared/domain";
 import type { ItemDTO } from "@/shared/dto";
 import { fromDateInputValue, toDateInputValue } from "../lib/format";
+
+/** 與 shaveInputSchema 的 itemIds 上限一致。 */
+const MAX_ITEMS = 12;
 
 export function ShaveForm() {
   const items = useQuery({
@@ -41,19 +48,26 @@ export function ShaveForm() {
   return <Form items={items.data.items} />;
 }
 
+type Ratings = Record<ShaveRatingKey, number | null>;
+
+const NO_RATINGS: Ratings = {
+  rating: null,
+  closeness: null,
+  smoothness: null,
+  comfort: null,
+};
+
 function Form({ items }: { items: ItemDTO[] }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [date, setDate] = useState(() => toDateInputValue(Date.now()));
-  const [picked, setPicked] = useState<Partial<Record<ItemCategory, string>>>(
-    {},
-  );
-  const [rating, setRating] = useState<number | null>(null);
+  const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
+  const [ratings, setRatings] = useState<Ratings>(NO_RATINGS);
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  /** 只顯示手上真的有東西的分類，表單才不會一整排空下拉。 */
+  /** 只顯示手上真的有東西的分類，表單才不會出現一整排空區塊。 */
   const byCategory = useMemo(() => {
     const map = new Map<ItemCategory, ItemDTO[]>();
     for (const it of items) {
@@ -66,20 +80,29 @@ function Form({ items }: { items: ItemDTO[] }) {
     );
   }, [items]);
 
-  const selectedIds = Object.values(picked).filter(Boolean) as string[];
+  const selectedIds = [...selected];
+
+  function toggle(itemId: string) {
+    setError(null);
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(itemId)) next.add(itemId);
+      return next;
+    });
+  }
 
   const save = useMutation({
     mutationFn: () =>
       api.createShave({
         shavedAt: fromDateInputValue(date),
-        rating,
+        ...ratings,
         notes: notes.trim() || null,
         itemIds: selectedIds,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shaves"] });
       queryClient.invalidateQueries({ queryKey: ["items"] });
-    queryClient.invalidateQueries({ queryKey: ["stats"] });
+      queryClient.invalidateQueries({ queryKey: ["stats"] });
       queryClient.invalidateQueries({ queryKey: ["item"] });
       queryClient.invalidateQueries({ queryKey: ["item-shaves"] });
       navigate("/shaves");
@@ -107,6 +130,10 @@ function Form({ items }: { items: ItemDTO[] }) {
       setError("至少要選一項用品。");
       return;
     }
+    if (selectedIds.length > MAX_ITEMS) {
+      setError(`一次最多記 ${MAX_ITEMS} 項用品。`);
+      return;
+    }
     save.mutate();
   }
 
@@ -116,11 +143,11 @@ function Form({ items }: { items: ItemDTO[] }) {
         e.preventDefault();
         handleSubmit();
       }}
-      className="max-w-2xl"
+      className="max-w-3xl"
     >
       <h1 className="mb-6 text-xl font-semibold tracking-tight">記一次刮鬍</h1>
 
-      <div className="space-y-5">
+      <div className="space-y-8">
         <Field label="日期">
           <input
             type="date"
@@ -132,68 +159,111 @@ function Form({ items }: { items: ItemDTO[] }) {
         </Field>
 
         <fieldset>
-          <legend className="mb-3 text-xs font-medium tracking-wide text-(--color-ink-soft)">
+          <legend className="text-xs font-medium tracking-wide text-(--color-ink-soft)">
             這次用了什麼
           </legend>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {byCategory.map(([category, options]) => (
-              <Field key={category} label={CATEGORY_LABELS[category]}>
-                <Select
-                  value={picked[category] ?? ""}
-                  onChange={(e) =>
-                    setPicked((p) => ({
-                      ...p,
-                      [category]: e.target.value || undefined,
-                    }))
-                  }
-                >
-                  <option value="">— 不用 —</option>
-                  {options.map((it) => (
-                    <option key={it.id} value={it.id}>
-                      {it.brand} {it.name}
-                    </option>
-                  ))}
-                </Select>
-              </Field>
-            ))}
+          <p className="mt-1 text-xs text-(--color-ink-faint)">
+            點一下選取，再點一下取消。沒用到的分類留空就好；同一個分類要選兩項也可以。
+          </p>
+
+          <div className="mt-4 space-y-5">
+            {byCategory.map(([category, options]) => {
+              const pickedHere = options.filter((it) => selected.has(it.id));
+              return (
+                <div key={category}>
+                  <div className="mb-2 flex items-center gap-2">
+                    <CategoryIcon
+                      category={category}
+                      className="size-4 text-(--color-ink-faint)"
+                    />
+                    <span className="text-xs font-medium text-(--color-ink-soft)">
+                      {CATEGORY_LABELS[category]}
+                    </span>
+                    <span className="text-xs text-(--color-ink-faint)">
+                      {pickedHere.length > 0
+                        ? `已選 ${pickedHere.length}`
+                        : "未使用"}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {options.map((it) => {
+                      const on = selected.has(it.id);
+                      return (
+                        <button
+                          key={it.id}
+                          type="button"
+                          aria-pressed={on}
+                          onClick={() => toggle(it.id)}
+                          className={cx(
+                            "flex items-center gap-2.5 rounded-xl border px-2.5 py-2 text-left transition",
+                            on
+                              ? "border-(--color-brass) bg-(--color-brass-soft)"
+                              : "border-(--color-line) bg-(--color-surface) hover:border-(--color-brass)",
+                          )}
+                        >
+                          <ItemThumb
+                            category={it.category}
+                            imageUrl={it.imageUrl}
+                            className="size-9"
+                          />
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-[11px] text-(--color-ink-soft)">
+                              {it.brand}
+                            </span>
+                            <span className="block truncate text-sm">
+                              {it.name}
+                            </span>
+                          </span>
+                          <span
+                            aria-hidden
+                            className={cx(
+                              "size-4 shrink-0 rounded-full border transition",
+                              on
+                                ? "border-(--color-brass) bg-(--color-brass)"
+                                : "border-(--color-line)",
+                            )}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </fieldset>
 
-        <Field label="評分">
-          <div className="flex items-center gap-1.5">
-            {[1, 2, 3, 4, 5].map((n) => (
-              <button
-                key={n}
-                type="button"
-                aria-label={`${n} 分`}
-                aria-pressed={rating === n}
-                onClick={() => setRating(rating === n ? null : n)}
-                className={cx(
-                  "size-7 rounded-full border transition",
-                  rating !== null && n <= rating
-                    ? "border-(--color-brass) bg-(--color-brass)"
-                    : "border-(--color-line) hover:border-(--color-brass)",
-                )}
+        <fieldset>
+          <legend className="text-xs font-medium tracking-wide text-(--color-ink-soft)">
+            這次的感受
+          </legend>
+          <p className="mt-1 text-xs text-(--color-ink-faint)">
+            每一項都是越高越好，不想評的留空就好。
+          </p>
+
+          <div className="mt-4 space-y-3">
+            {SHAVE_RATINGS.map((scale) => (
+              <RatingInput
+                key={scale.key}
+                label={scale.label}
+                low={scale.low}
+                high={scale.high}
+                value={ratings[scale.key]}
+                onChange={(value) =>
+                  setRatings((prev) => ({ ...prev, [scale.key]: value }))
+                }
               />
             ))}
-            {rating !== null && (
-              <button
-                type="button"
-                onClick={() => setRating(null)}
-                className="ml-2 text-xs text-(--color-ink-faint) hover:text-(--color-ink)"
-              >
-                清除
-              </button>
-            )}
           </div>
-        </Field>
+        </fieldset>
 
         <Field label="心得">
           <Textarea
             rows={3}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="順不順、有沒有刮傷、泡沫狀況…"
+            placeholder="泡沫狀況、刀角度、和上次比起來如何…"
             maxLength={2000}
           />
         </Field>

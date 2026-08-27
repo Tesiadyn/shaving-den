@@ -34,15 +34,19 @@ export const itemPatchSchema = itemInputSchema.partial();
 export type ItemPatch = z.infer<typeof itemPatchSchema>;
 
 export const itemListQuerySchema = z.object({
-  category: z.enum(ITEM_CATEGORIES).optional(),
   status: z.enum(ITEM_STATUSES).optional(),
-  q: z.string().trim().max(120).optional(),
 });
+
+/** 感受評分：1–5，越高越好，沒填就是 null。 */
+const ratingValue = z.int().min(1).max(5).nullable().default(null);
 
 export const shaveInputSchema = z.object({
   /** epoch ms；UI 送當天的當地時間 00:00。 */
   shavedAt: z.int(),
-  rating: z.int().min(1).max(5).nullable().default(null),
+  rating: ratingValue,
+  closeness: ratingValue,
+  smoothness: ratingValue,
+  comfort: ratingValue,
   notes: optionalText(2000),
   itemIds: z.array(z.string().min(1)).min(1, "至少選一項用品").max(12),
 });

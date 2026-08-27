@@ -154,7 +154,11 @@ export const shave = sqliteTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     shavedAt: integer("shaved_at", { mode: "timestamp_ms" }).notNull(),
+    // 感受評分，全部 1–5 且越高越好，未填為 null。定義見 shared/domain 的 SHAVE_RATINGS。
     rating: integer("rating"),
+    closeness: integer("closeness"),
+    smoothness: integer("smoothness"),
+    comfort: integer("comfort"),
     notes: text("notes"),
     createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()

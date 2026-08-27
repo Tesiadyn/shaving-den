@@ -21,7 +21,7 @@
       "database_name": "shaving-den",
       // 執行 `wrangler d1 create shaving-den` 後把回傳的 id 貼進來。
       // 本機開發 (`pnpm dev`) 用模擬的 D1，不需要真實 id。
-      "database_id": "PLACEHOLDER_RUN_WRANGLER_D1_CREATE",
+      "database_id": "13257764-50fa-4ab2-9051-92543525667b",
       "migrations_dir": "./migrations"
     }
   ],

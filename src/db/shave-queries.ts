@@ -8,6 +8,9 @@ export type ShaveRow = {
   id: string;
   shavedAt: Date;
   rating: number | null;
+  closeness: number | null;
+  smoothness: number | null;
+  comfort: number | null;
   notes: string | null;
   items: Array<{
     id: string;
@@ -25,12 +28,7 @@ export type ShaveRow = {
  */
 async function attachItems(
   db: Db,
-  rows: Array<{
-    id: string;
-    shavedAt: Date;
-    rating: number | null;
-    notes: string | null;
-  }>,
+  rows: Array<Omit<ShaveRow, "items">>,
 ): Promise<ShaveRow[]> {
   if (rows.length === 0) return [];
 
@@ -72,6 +70,9 @@ const shaveColumns = {
   id: shave.id,
   shavedAt: shave.shavedAt,
   rating: shave.rating,
+  closeness: shave.closeness,
+  smoothness: shave.smoothness,
+  comfort: shave.comfort,
   notes: shave.notes,
 };
 
@@ -155,6 +156,9 @@ export async function createShave(
       userId,
       shavedAt: new Date(input.shavedAt),
       rating: input.rating,
+      closeness: input.closeness,
+      smoothness: input.smoothness,
+      comfort: input.comfort,
       notes: input.notes,
       createdAt: new Date(),
     }),

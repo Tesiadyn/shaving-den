@@ -63,3 +63,22 @@ export const STATUS_LABELS: Record<ItemStatus, string> = {
 
 export const IMAGE_SOURCES = ["og", "search", "upload"] as const;
 export type ImageSource = (typeof IMAGE_SOURCES)[number];
+
+/**
+ * 每次刮鬍的感受評分，全部都是 1–5 分。
+ *
+ * 刻意讓每一項都「越高越好」：同一張表單裡若混著相反方向的量表
+ * （一排越多分越棒、下一排越多分越慘），填的時候極容易點反。
+ * 所以「刮傷」是用「舒適度」表達 —— 5 分＝完全沒感覺。
+ *
+ * 這份清單是單一來源：表單的輸入列與日誌的顯示都從這裡長出來，
+ * 要增減指標只要改這裡加上對應的欄位。
+ */
+export const SHAVE_RATINGS = [
+  { key: "rating", label: "整體", low: "不滿意", high: "很滿意" },
+  { key: "closeness", label: "刮淨度", low: "沒刮乾淨", high: "非常乾淨" },
+  { key: "smoothness", label: "滑順度", low: "澀、拖刀", high: "順到底" },
+  { key: "comfort", label: "舒適度", low: "刮傷、刺痛", high: "完全無感" },
+] as const;
+
+export type ShaveRatingKey = (typeof SHAVE_RATINGS)[number]["key"];

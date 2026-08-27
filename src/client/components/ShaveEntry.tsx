@@ -1,9 +1,13 @@
 import { Link } from "react-router";
-import { CATEGORY_LABELS, ITEM_CATEGORIES } from "@/shared/domain";
+import {
+  CATEGORY_LABELS,
+  ITEM_CATEGORIES,
+  SHAVE_RATINGS,
+} from "@/shared/domain";
 import type { ShaveDTO } from "@/shared/dto";
 import { formatDate, relativeDays } from "../lib/format";
-import { CategoryIcon } from "./CategoryIcon";
-import { Card } from "./ui";
+import { ItemThumb } from "./ItemThumb";
+import { Card, RatingDots } from "./ui";
 
 export function ShaveEntry({
   shave,
@@ -20,6 +24,11 @@ export function ShaveEntry({
       ITEM_CATEGORIES.indexOf(a.category) - ITEM_CATEGORIES.indexOf(b.category),
   );
 
+  const scored = SHAVE_RATINGS.flatMap((scale) => {
+    const value = shave[scale.key];
+    return value === null ? [] : [{ ...scale, value }];
+  });
+
   return (
     <Card className="p-4">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -27,17 +36,6 @@ export function ShaveEntry({
         <span className="text-xs text-(--color-ink-faint)">
           {relativeDays(shave.shavedAt)}
         </span>
-        {shave.rating !== null && (
-          <span
-            className="text-xs text-(--color-brass)"
-            aria-label={`評分 ${shave.rating} 分，滿分 5 分`}
-          >
-            {"●".repeat(shave.rating)}
-            <span className="text-(--color-line)">
-              {"●".repeat(5 - shave.rating)}
-            </span>
-          </span>
-        )}
         {onDelete && (
           <button
             type="button"
@@ -50,21 +48,22 @@ export function ShaveEntry({
         )}
       </div>
 
+      {scored.length > 0 && (
+        <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1">
+          {scored.map((scale) => (
+            <RatingDots
+              key={scale.key}
+              label={scale.label}
+              value={scale.value}
+            />
+          ))}
+        </div>
+      )}
+
       <ul className="mt-3 space-y-1.5">
         {ordered.map((it) => (
           <li key={it.id} className="flex items-center gap-2.5">
-            <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-(--color-line) bg-(--color-paper) text-(--color-ink-faint)">
-              {it.imageUrl ? (
-                <img
-                  src={it.imageUrl}
-                  alt=""
-                  loading="lazy"
-                  className="size-full object-cover"
-                />
-              ) : (
-                <CategoryIcon category={it.category} className="size-4.5" />
-              )}
-            </span>
+            <ItemThumb category={it.category} imageUrl={it.imageUrl} />
             <span className="w-14 shrink-0 text-[11px] text-(--color-ink-faint)">
               {CATEGORY_LABELS[it.category]}
             </span>

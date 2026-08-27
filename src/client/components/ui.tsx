@@ -144,3 +144,83 @@ export function ErrorNote({ children }: { children: ReactNode }) {
     </p>
   );
 }
+
+/**
+ * 1–5 分的感受評分輸入。點已選中的分數可以取消（回到「沒填」）。
+ * 兩端的說明文字一直顯示，因為「4 分的滑順度」本身讀不出方向。
+ */
+export function RatingInput({
+  label,
+  low,
+  high,
+  value,
+  onChange,
+}: {
+  label: string;
+  low: string;
+  high: string;
+  value: number | null;
+  onChange: (value: number | null) => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <span className="w-14 shrink-0 text-xs font-medium text-(--color-ink-soft)">
+        {label}
+      </span>
+
+      <div className="flex items-center gap-1.5">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            type="button"
+            aria-label={`${label} ${n} 分`}
+            aria-pressed={value === n}
+            onClick={() => onChange(value === n ? null : n)}
+            className={cx(
+              "size-7 rounded-full border transition",
+              value !== null && n <= value
+                ? "border-(--color-brass) bg-(--color-brass)"
+                : "border-(--color-line) hover:border-(--color-brass)",
+            )}
+          />
+        ))}
+      </div>
+
+      <span className="text-xs text-(--color-ink-faint)">
+        {low} → {high}
+      </span>
+
+      {value !== null && (
+        <button
+          type="button"
+          onClick={() => onChange(null)}
+          className="text-xs text-(--color-ink-faint) transition hover:text-(--color-ink)"
+        >
+          清除
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** 唯讀的評分顯示，用在日誌列表。 */
+export function RatingDots({
+  label,
+  value,
+}: {
+  label: string;
+  value: number;
+}) {
+  return (
+    <span
+      className="inline-flex items-baseline gap-1 text-xs whitespace-nowrap"
+      aria-label={`${label} ${value} 分，滿分 5 分`}
+    >
+      <span className="text-(--color-ink-faint)">{label}</span>
+      <span className="text-(--color-brass)" aria-hidden>
+        {"●".repeat(value)}
+        <span className="text-(--color-line)">{"●".repeat(5 - value)}</span>
+      </span>
+    </span>
+  );
+}

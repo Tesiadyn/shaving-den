@@ -5,7 +5,7 @@ import type {
   Stats,
 } from "@/shared/dto";
 import type { ItemInput, ItemPatch, ShaveInput } from "@/shared/schemas";
-import type { ItemCategory, ItemStatus } from "@/shared/domain";
+import type { ItemStatus } from "@/shared/domain";
 
 export class ApiError extends Error {
   constructor(
@@ -42,19 +42,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export type ItemFilters = {
-  category?: ItemCategory;
   status?: ItemStatus;
-  q?: string;
 };
 
 export const api = {
   listItems(filters: ItemFilters = {}): Promise<{ items: ItemDTO[] }> {
-    const params = new URLSearchParams();
-    if (filters.category) params.set("category", filters.category);
-    if (filters.status) params.set("status", filters.status);
-    if (filters.q) params.set("q", filters.q);
-    const qs = params.toString();
-    return request(`/api/items${qs ? `?${qs}` : ""}`);
+    const qs = filters.status ? `?status=${filters.status}` : "";
+    return request(`/api/items${qs}`);
   },
 
   getItem(id: string): Promise<{ item: ItemDTO }> {

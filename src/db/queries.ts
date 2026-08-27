@@ -1,9 +1,9 @@
-import { and, desc, eq, like, or, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import type { Db } from "./client";
 import { bladeSwap, item, shave, shaveItem } from "./schema";
 import type { Item } from "./schema";
 import type { ItemInput, ItemPatch } from "@/shared/schemas";
-import type { ItemCategory, ItemStatus } from "@/shared/domain";
+import type { ItemStatus } from "@/shared/domain";
 
 /**
  * 使用次數一律用推導，不存計數器。
@@ -59,30 +59,20 @@ function selectItemsWithUses(db: Db) {
 }
 
 export type ItemFilter = {
-  category?: ItemCategory;
   status?: ItemStatus;
-  q?: string;
 };
 
+/**
+ * 分類篩選與關鍵字搜尋刻意不做在這裡：收藏頁一次把清單抓齊、在前端篩，
+ * 這樣分類按鈕上能直接顯示數量、切換也不必等網路。
+ */
 export async function listItems(
   db: Db,
   userId: string,
   filter: ItemFilter = {},
 ): Promise<ItemWithUses[]> {
   const conditions = [eq(item.userId, userId)];
-  if (filter.category) conditions.push(eq(item.category, filter.category));
   if (filter.status) conditions.push(eq(item.status, filter.status));
-
-  if (filter.q) {
-    const needle = `%${filter.q.toLowerCase()}%`;
-    conditions.push(
-      or(
-        like(sql`lower(${item.brand})`, needle),
-        like(sql`lower(${item.name})`, needle),
-        like(sql`lower(coalesce(${item.scentNotes}, ''))`, needle),
-      )!,
-    );
-  }
 
   return selectItemsWithUses(db)
     .where(and(...conditions))

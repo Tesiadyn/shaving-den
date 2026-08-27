@@ -15,6 +15,13 @@
       "when": 1787727363656,
       "tag": "0001_blade_swap",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1787800209835,
+      "tag": "0002_shave_feel",
+      "breakpoints": true
     }
   ]
 }

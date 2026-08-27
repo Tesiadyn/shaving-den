@@ -5,9 +5,9 @@
  *   node scripts/dev-session.mjs            # 造 session 並印出 cookie
  *   node scripts/dev-session.mjs bob        # 造第二個使用者，用來驗證資料隔離
  *
- * session 是直接寫進本機 D1 的，所以請在 `pnpm dev` 跑起來之後才 mint；
- * 若剛清掉 .wrangler 重建，第一次 mint 出來的 cookie 有可能還沒被 dev server 看到，
- * API 會回 401 —— 再 mint 一次即可。
+ * user 用 ON CONFLICT DO UPDATE 而不是 INSERT OR REPLACE：REPLACE 在 SQLite 是
+ * 「先 DELETE 再 INSERT」，會沿著 item / shave 的 ON DELETE CASCADE 把這個使用者
+ * 的整份收藏清空。重新 mint 一次 cookie 不該弄丟資料。
  */
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
@@ -30,8 +30,9 @@ const token = randomUUID().replaceAll("-", "");
 const expiresAt = now + 30 * 24 * 60 * 60 * 1000;
 
 const sql = `
-INSERT OR REPLACE INTO user (id, name, email, emailVerified, image, createdAt, updatedAt)
-VALUES ('${userId}', '${who}', '${who}@dev.local', 1, NULL, ${now}, ${now});
+INSERT INTO user (id, name, email, emailVerified, image, createdAt, updatedAt)
+VALUES ('${userId}', '${who}', '${who}@dev.local', 1, NULL, ${now}, ${now})
+ON CONFLICT(id) DO UPDATE SET updatedAt = excluded.updatedAt;
 INSERT INTO session (id, userId, token, expiresAt, ipAddress, userAgent, createdAt, updatedAt)
 VALUES ('${sessionId}', '${userId}', '${token}', ${expiresAt}, NULL, 'dev-script', ${now}, ${now});
 `.trim();

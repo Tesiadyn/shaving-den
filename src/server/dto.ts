@@ -38,6 +38,9 @@ export function toShaveDTO(row: ShaveRow): ShaveDTO {
     id: row.id,
     shavedAt: row.shavedAt.getTime(),
     rating: row.rating,
+    closeness: row.closeness,
+    smoothness: row.smoothness,
+    comfort: row.comfort,
     notes: row.notes,
     items: row.items.map((i) => ({
       id: i.id,

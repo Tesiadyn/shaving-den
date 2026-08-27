@@ -30,7 +30,11 @@ export type ItemDTO = {
 export type ShaveDTO = {
   id: string;
   shavedAt: number;
+  /** 感受評分，1–5 且越高越好；未填為 null。對應 SHAVE_RATINGS。 */
   rating: number | null;
+  closeness: number | null;
+  smoothness: number | null;
+  comfort: number | null;
   notes: string | null;
   items: Array<Pick<ItemDTO, "id" | "category" | "brand" | "name" | "imageUrl">>;
 };
