@@ -49,6 +49,21 @@ const BLANK: FormState = {
   acquiredAt: "",
 };
 
+/**
+ * 新增品項時的自動補圖：跟編輯頁「加上圖片」→「從商品網址」用同一套
+ * from-url 抓圖 + attachImage 存圖 API，只是自動選第一張候選圖、且
+ * 失敗不當成錯誤——沒抓到圖不影響新增品項本身。
+ */
+async function autoAttachImage(itemId: string, productUrl: string) {
+  try {
+    const { candidates } = await api.imageFromUrl(productUrl);
+    const first = candidates[0];
+    if (first) await api.attachImage(itemId, first.url, "og");
+  } catch {
+    // 補圖失敗留給使用者之後在品項頁手動補。
+  }
+}
+
 function toFormState(item: ItemDTO): FormState {
   return {
     category: item.category,
@@ -147,7 +162,14 @@ function ItemFormFields({
 
       return itemId ? api.updateItem(itemId, payload) : api.createItem(payload);
     },
-    onSuccess: ({ item }) => {
+    onSuccess: async ({ item }) => {
+      // 新增品項時，若填了商品頁網址，用跟編輯頁「加上圖片」相同的
+      // from-url 抓圖 + 選第一張存入流程自動補圖；失敗就留給使用者
+      // 之後在品項頁手動補，不擋住新增流程。
+      const productUrl = form.productUrl.trim();
+      if (!itemId && productUrl) {
+        await autoAttachImage(item.id, productUrl);
+      }
       queryClient.invalidateQueries({ queryKey: ["items"] });
       queryClient.invalidateQueries({ queryKey: ["item", item.id] });
       navigate("/den/" + item.id);
