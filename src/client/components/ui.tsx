@@ -1,5 +1,6 @@
 import type {
   ButtonHTMLAttributes,
+  CSSProperties,
   InputHTMLAttributes,
   ReactNode,
   SelectHTMLAttributes,
@@ -98,13 +99,16 @@ export function Field({
 
 export function Card({
   className,
+  style,
   children,
 }: {
   className?: string;
+  style?: CSSProperties;
   children: ReactNode;
 }) {
   return (
     <div
+      style={style}
       className={cx(
         "rounded-xl border border-(--color-line) bg-(--color-surface)",
         className,

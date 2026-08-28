@@ -1,7 +1,13 @@
 import type { ItemWithUses } from "@/db/queries";
 import type { ShaveRow } from "@/db/shave-queries";
+import type { PublicShare, ShareWithCount } from "@/db/share-queries";
 import { keyVersion } from "@/server/images/store";
-import type { ItemDTO, ShaveDTO } from "@/shared/dto";
+import type {
+  ItemDTO,
+  PublicShareDTO,
+  ShareDTO,
+  ShaveDTO,
+} from "@/shared/dto";
 
 /**
  * 圖片一律經由 Worker 供應（要驗身分），不外連原始網址。
@@ -48,6 +54,49 @@ export function toShaveDTO(row: ShaveRow): ShaveDTO {
       brand: i.brand,
       name: i.name,
       imageUrl: imageUrlFor(i.id, i.imageKey),
+    })),
+  };
+}
+
+export function toShareDTO(row: ShareWithCount): ShareDTO {
+  return {
+    id: row.id,
+    createdAt: row.createdAt.getTime(),
+    itemCount: row.itemCount,
+  };
+}
+
+/** 公開分享頁的圖片一律走 share 授權邊界，不是 items.ts 那條需要登入的路由。 */
+function publicImageUrlFor(
+  shareId: string,
+  itemId: string,
+  imageKey: string | null,
+): string | null {
+  return imageKey
+    ? `/api/public/shares/${shareId}/items/${itemId}/image?v=${keyVersion(imageKey)}`
+    : null;
+}
+
+export function toPublicShareDTO(row: PublicShare): PublicShareDTO {
+  return {
+    id: row.id,
+    ownerName: row.ownerName,
+    createdAt: row.createdAt.getTime(),
+    items: row.items.map((it) => ({
+      id: it.id,
+      category: it.category,
+      brand: it.brand,
+      name: it.name,
+      scentNotes: it.scentNotes,
+      notes: it.notes,
+      quantity: it.quantity,
+      unit: it.unit,
+      status: it.status,
+      productUrl: it.productUrl,
+      imageUrl: publicImageUrlFor(row.id, it.id, it.imageKey),
+      usesCount: it.usesCount,
+      currentUnitUses: it.currentUnitUses,
+      acquiredAt: it.acquiredAt?.getTime() ?? null,
     })),
   };
 }

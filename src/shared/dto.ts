@@ -84,3 +84,35 @@ export type Stats = {
   topItems: TopItem[];
   lowStock: LowStockItem[];
 };
+
+export type ShareDTO = {
+  id: string;
+  createdAt: number;
+  itemCount: number;
+};
+
+/** 公開分享頁看得到的品項細節，刻意不含 userId 等內部欄位。 */
+export type PublicShareItemDTO = Pick<
+  ItemDTO,
+  | "id"
+  | "category"
+  | "brand"
+  | "name"
+  | "scentNotes"
+  | "notes"
+  | "quantity"
+  | "unit"
+  | "status"
+  | "productUrl"
+  | "imageUrl"
+  | "usesCount"
+  | "currentUnitUses"
+  | "acquiredAt"
+>;
+
+export type PublicShareDTO = {
+  id: string;
+  ownerName: string;
+  createdAt: number;
+  items: PublicShareItemDTO[];
+};

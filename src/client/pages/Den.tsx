@@ -47,9 +47,14 @@ export function Den() {
     <div>
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-semibold tracking-tight">收藏</h1>
-        <Link to="/den/new" className="ml-auto">
-          <Button variant="primary">新增用品</Button>
-        </Link>
+        <div className="ml-auto flex gap-2">
+          <Link to="/den/share">
+            <Button>分享</Button>
+          </Link>
+          <Link to="/den/new">
+            <Button variant="primary">新增用品</Button>
+          </Link>
+        </div>
       </div>
 
       {items.isPending && (

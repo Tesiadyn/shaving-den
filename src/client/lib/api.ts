@@ -1,6 +1,8 @@
 import type {
   ImageCandidate,
   ItemDTO,
+  PublicShareDTO,
+  ShareDTO,
   ShaveDTO,
   Stats,
 } from "@/shared/dto";
@@ -138,5 +140,24 @@ export const api = {
 
   removeImage(itemId: string): Promise<{ item: ItemDTO }> {
     return request(`/api/items/${itemId}/image`, { method: "DELETE" });
+  },
+
+  listShares(): Promise<{ shares: ShareDTO[] }> {
+    return request("/api/shares");
+  },
+
+  createShare(itemIds: string[]): Promise<{ id: string }> {
+    return request("/api/shares", {
+      method: "POST",
+      body: JSON.stringify({ itemIds }),
+    });
+  },
+
+  deleteShare(id: string): Promise<void> {
+    return request(`/api/shares/${id}`, { method: "DELETE" });
+  },
+
+  getPublicShare(id: string): Promise<{ share: PublicShareDTO }> {
+    return request(`/api/public/shares/${id}`);
   },
 };

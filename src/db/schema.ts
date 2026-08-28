@@ -211,6 +211,38 @@ export const imageSearchCache = sqliteTable("image_search_cache", {
     .default(sql`(unixepoch() * 1000)`),
 });
 
+/** 一次「分享收藏」動作。id 直接當作公開網址的 token。 */
+export const share = sqliteTable(
+  "share",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (t) => [index("share_user_idx").on(t.userId)],
+);
+
+/** 這次分享挑了哪些品項。 */
+export const shareItem = sqliteTable(
+  "share_item",
+  {
+    shareId: text("share_id")
+      .notNull()
+      .references(() => share.id, { onDelete: "cascade" }),
+    itemId: text("item_id")
+      .notNull()
+      .references(() => item.id, { onDelete: "cascade" }),
+  },
+  (t) => [
+    primaryKey({ columns: [t.shareId, t.itemId] }),
+    index("share_item_item_idx").on(t.itemId),
+  ],
+);
+
 /* ------------------------------------------------------------------------- */
 
 export const itemRelations = relations(item, ({ many }) => ({

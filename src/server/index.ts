@@ -4,6 +4,8 @@ import { withContext } from "./middleware/context";
 import { requireAuth } from "./middleware/require-auth";
 import { images } from "./routes/images";
 import { items } from "./routes/items";
+import { publicShares } from "./routes/public-shares";
+import { shares } from "./routes/shares";
 import { shaves } from "./routes/shaves";
 import { stats } from "./routes/stats";
 import type { AppEnv } from "./types";
@@ -23,6 +25,8 @@ app.route("/api/items", items);
 app.route("/api/shaves", shaves);
 app.route("/api/images", images);
 app.route("/api/stats", stats);
+app.route("/api/shares", shares);
+app.route("/api/public/shares", publicShares);
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) {

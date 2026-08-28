@@ -77,3 +77,9 @@ export const imageSelectSchema = z.object({
   imageUrl: z.url(),
   source: z.enum(["og", "search"]),
 });
+
+export const shareInputSchema = z.object({
+  itemIds: z.array(z.string().min(1)).min(1, "至少選一項用品").max(60),
+});
+
+export type ShareInput = z.infer<typeof shareInputSchema>;

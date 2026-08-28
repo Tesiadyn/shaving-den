@@ -26,7 +26,7 @@ export type ItemWithUses = Item & {
   currentUnitUses: number;
 };
 
-const itemColumns = {
+export const itemColumns = {
   id: item.id,
   userId: item.userId,
   category: item.category,
