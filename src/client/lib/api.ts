@@ -2,6 +2,7 @@ import type {
   ImageCandidate,
   ItemDTO,
   PublicShareDTO,
+  PublicShaveDTO,
   ShareDTO,
   ShaveDTO,
   Stats,
@@ -103,6 +104,18 @@ export const api = {
 
   deleteShave(id: string): Promise<void> {
     return request(`/api/shaves/${id}`, { method: "DELETE" });
+  },
+
+  shareShave(id: string): Promise<{ id: string }> {
+    return request(`/api/shaves/${id}/share`, { method: "POST" });
+  },
+
+  unshareShave(id: string): Promise<void> {
+    return request(`/api/shaves/${id}/share`, { method: "DELETE" });
+  },
+
+  getPublicShaveShare(id: string): Promise<{ shave: PublicShaveDTO }> {
+    return request(`/api/public/shaves/${id}`);
   },
 
   imageFromUrl(productUrl: string): Promise<{ candidates: ImageCandidate[] }> {

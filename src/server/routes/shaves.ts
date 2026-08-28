@@ -5,6 +5,7 @@ import {
   deleteShave,
   listShaves,
 } from "@/db/shave-queries";
+import { createShaveShare, deleteShaveShare } from "@/db/shave-share-queries";
 import { toShaveDTO } from "@/server/dto";
 import { badRequest, notFound } from "@/server/errors";
 import { requireAuth } from "@/server/middleware/require-auth";
@@ -33,6 +34,22 @@ shaves.post("/", zValidator("json", shaveInputSchema), async (c) => {
 
 shaves.delete("/:id", async (c) => {
   const ok = await deleteShave(c.var.db, c.var.user.id, c.req.param("id"));
+  if (!ok) notFound();
+  return c.body(null, 204);
+});
+
+shaves.post("/:id/share", async (c) => {
+  const result = await createShaveShare(
+    c.var.db,
+    c.var.user.id,
+    c.req.param("id"),
+  );
+  if (!result.ok) notFound();
+  return c.json({ id: result.id }, 201);
+});
+
+shaves.delete("/:id/share", async (c) => {
+  const ok = await deleteShaveShare(c.var.db, c.var.user.id, c.req.param("id"));
   if (!ok) notFound();
   return c.body(null, 204);
 });

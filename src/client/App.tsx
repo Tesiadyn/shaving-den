@@ -8,12 +8,14 @@ import { NotFound } from "./pages/NotFound";
 import { ShareForm } from "./pages/ShareForm";
 import { SharePublic } from "./pages/SharePublic";
 import { ShaveForm } from "./pages/ShaveForm";
+import { ShavePublic } from "./pages/ShavePublic";
 import { Shaves } from "./pages/Shaves";
 import { Stats } from "./pages/Stats";
 
 const router = createBrowserRouter([
   // 公開分享頁：不套用登入牆，任何人拿著連結都能看。
   { path: "share/:shareId", element: <SharePublic /> },
+  { path: "shave/:shareId", element: <ShavePublic /> },
   {
     element: (
       <AuthGate>

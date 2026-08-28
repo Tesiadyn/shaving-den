@@ -1,10 +1,12 @@
 import type { ItemWithUses } from "@/db/queries";
 import type { ShaveRow } from "@/db/shave-queries";
+import type { PublicShave as PublicShaveShare } from "@/db/shave-share-queries";
 import type { PublicShare, ShareWithCount } from "@/db/share-queries";
 import { keyVersion } from "@/server/images/store";
 import type {
   ItemDTO,
   PublicShareDTO,
+  PublicShaveDTO,
   ShareDTO,
   ShaveDTO,
 } from "@/shared/dto";
@@ -55,6 +57,7 @@ export function toShaveDTO(row: ShaveRow): ShaveDTO {
       name: i.name,
       imageUrl: imageUrlFor(i.id, i.imageKey),
     })),
+    shareId: row.shareId,
   };
 }
 
@@ -75,6 +78,37 @@ function publicImageUrlFor(
   return imageKey
     ? `/api/public/shares/${shareId}/items/${itemId}/image?v=${keyVersion(imageKey)}`
     : null;
+}
+
+/** 公開日誌分享頁的圖片一律走 shaveShare 授權邊界，不是 items.ts 那條需要登入的路由。 */
+function publicShaveImageUrlFor(
+  shareId: string,
+  itemId: string,
+  imageKey: string | null,
+): string | null {
+  return imageKey
+    ? `/api/public/shaves/${shareId}/items/${itemId}/image?v=${keyVersion(imageKey)}`
+    : null;
+}
+
+export function toPublicShaveDTO(row: PublicShaveShare): PublicShaveDTO {
+  return {
+    id: row.id,
+    ownerName: row.ownerName,
+    shavedAt: row.shavedAt.getTime(),
+    rating: row.rating,
+    closeness: row.closeness,
+    smoothness: row.smoothness,
+    comfort: row.comfort,
+    notes: row.notes,
+    items: row.items.map((i) => ({
+      id: i.id,
+      category: i.category,
+      brand: i.brand,
+      name: i.name,
+      imageUrl: publicShaveImageUrlFor(row.id, i.id, i.imageKey),
+    })),
+  };
 }
 
 export function toPublicShareDTO(row: PublicShare): PublicShareDTO {

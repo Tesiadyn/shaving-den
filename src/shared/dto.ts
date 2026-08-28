@@ -37,6 +37,8 @@ export type ShaveDTO = {
   comfort: number | null;
   notes: string | null;
   items: Array<Pick<ItemDTO, "id" | "category" | "brand" | "name" | "imageUrl">>;
+  /** 這篇日誌的分享連結 id；未分享過為 null。 */
+  shareId: string | null;
 };
 
 export type ImageCandidate = {
@@ -115,4 +117,17 @@ export type PublicShareDTO = {
   ownerName: string;
   createdAt: number;
   items: PublicShareItemDTO[];
+};
+
+/** 公開日誌分享頁看得到的細節。 */
+export type PublicShaveDTO = {
+  id: string;
+  ownerName: string;
+  shavedAt: number;
+  rating: number | null;
+  closeness: number | null;
+  smoothness: number | null;
+  comfort: number | null;
+  notes: string | null;
+  items: Array<Pick<ItemDTO, "id" | "category" | "brand" | "name" | "imageUrl">>;
 };

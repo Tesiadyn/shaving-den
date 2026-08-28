@@ -1,6 +1,6 @@
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import type { Db } from "./client";
-import { item, shave, shaveItem } from "./schema";
+import { item, shave, shaveItem, shaveShare } from "./schema";
 import type { ShaveInput } from "@/shared/schemas";
 import type { ItemCategory } from "@/shared/domain";
 
@@ -12,6 +12,8 @@ export type ShaveRow = {
   smoothness: number | null;
   comfort: number | null;
   notes: string | null;
+  /** 這篇日誌的分享連結 id；未分享過為 null。 */
+  shareId: string | null;
   items: Array<{
     id: string;
     category: ItemCategory;
@@ -74,6 +76,7 @@ const shaveColumns = {
   smoothness: shave.smoothness,
   comfort: shave.comfort,
   notes: shave.notes,
+  shareId: shaveShare.id,
 };
 
 export async function listShaves(
@@ -84,6 +87,7 @@ export async function listShaves(
   const rows = await db
     .select(shaveColumns)
     .from(shave)
+    .leftJoin(shaveShare, eq(shaveShare.shaveId, shave.id))
     .where(eq(shave.userId, userId))
     .orderBy(desc(shave.shavedAt), desc(shave.createdAt))
     .limit(limit);
@@ -100,6 +104,7 @@ export async function listShavesForItem(
   const rows = await db
     .select(shaveColumns)
     .from(shave)
+    .leftJoin(shaveShare, eq(shaveShare.shaveId, shave.id))
     .innerJoin(shaveItem, eq(shaveItem.shaveId, shave.id))
     .where(and(eq(shave.userId, userId), eq(shaveItem.itemId, itemId)))
     .orderBy(desc(shave.shavedAt));
@@ -115,6 +120,7 @@ export async function getShave(
   const rows = await db
     .select(shaveColumns)
     .from(shave)
+    .leftJoin(shaveShare, eq(shaveShare.shaveId, shave.id))
     .where(and(eq(shave.id, shaveId), eq(shave.userId, userId)))
     .limit(1);
 

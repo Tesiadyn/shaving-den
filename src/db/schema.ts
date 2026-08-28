@@ -243,6 +243,26 @@ export const shareItem = sqliteTable(
   ],
 );
 
+/** 單篇刮鬍日誌的分享。跟 share（收藏分享）分開來源與授權查詢都不同，故獨立一張表。 */
+export const shaveShare = sqliteTable(
+  "shave_share",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    /** 一篇日誌最多一個分享連結，重覆分享回傳既有的那個。 */
+    shaveId: text("shave_id")
+      .notNull()
+      .unique()
+      .references(() => shave.id, { onDelete: "cascade" }),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (t) => [index("shave_share_user_idx").on(t.userId)],
+);
+
 /* ------------------------------------------------------------------------- */
 
 export const itemRelations = relations(item, ({ many }) => ({
