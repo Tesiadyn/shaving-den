@@ -26,17 +26,36 @@ export async function listShares(
     .orderBy(desc(share.createdAt));
 }
 
+/**
+ * D1 單一查詢的 bound parameter 上限是 100。分享／插入都要照這個上限分批，
+ * 不然收藏量大的使用者一次分享幾十個品項就會整個失敗。
+ */
+const MAX_IDS_PER_SELECT = 90; // + 1 個 userId 參數，留一點餘裕
+const MAX_ROWS_PER_INSERT = 40; // 每列吃 2 個參數（shareId、itemId）
+
+function chunk<T>(items: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+}
+
 /** 過濾掉不屬於這個使用者的 itemId —— 避免把別人的品項分享出去。 */
 async function ownedItemIds(
   db: Db,
   userId: string,
   itemIds: string[],
 ): Promise<string[]> {
-  const rows = await db
-    .select({ id: item.id })
-    .from(item)
-    .where(and(eq(item.userId, userId), inArray(item.id, itemIds)));
-  return rows.map((r) => r.id);
+  const batches = await Promise.all(
+    chunk(itemIds, MAX_IDS_PER_SELECT).map((batch) =>
+      db
+        .select({ id: item.id })
+        .from(item)
+        .where(and(eq(item.userId, userId), inArray(item.id, batch))),
+    ),
+  );
+  return batches.flat().map((r) => r.id);
 }
 
 export type CreateShareResult =
@@ -53,13 +72,15 @@ export async function createShare(
 
   const id = crypto.randomUUID();
 
-  // D1 沒有 interactive transaction，但 batch 是單一原子操作。
-  await db.batch([
+  const statements = [
     db.insert(share).values({ id, userId, createdAt: new Date() }),
-    db
-      .insert(shareItem)
-      .values(owned.map((itemId) => ({ shareId: id, itemId }))),
-  ]);
+    ...chunk(owned, MAX_ROWS_PER_INSERT).map((batch) =>
+      db.insert(shareItem).values(batch.map((itemId) => ({ shareId: id, itemId }))),
+    ),
+  ] as [Parameters<typeof db.batch>[0][number], ...Parameters<typeof db.batch>[0][number][]];
+
+  // D1 沒有 interactive transaction，但 batch 是單一原子操作。
+  await db.batch(statements);
 
   return { ok: true, id };
 }
