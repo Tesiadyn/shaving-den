@@ -48,6 +48,9 @@ export function Den() {
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-semibold tracking-tight">收藏</h1>
         <div className="ml-auto flex gap-2">
+          <Link to="/den/wheel">
+            <Button>轉盤抽籤</Button>
+          </Link>
           <Link to="/den/share">
             <Button>分享</Button>
           </Link>
