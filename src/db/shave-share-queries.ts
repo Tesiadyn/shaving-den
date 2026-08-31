@@ -54,6 +54,10 @@ export type PublicShave = {
   closeness: number | null;
   smoothness: number | null;
   comfort: number | null;
+  latherQuality: number | null;
+  moisturizing: number | null;
+  scentLongevity: number | null;
+  edgeDulling: number | null;
   notes: string | null;
   items: Array<{
     id: string;
@@ -78,6 +82,10 @@ export async function getPublicShaveShare(
       closeness: shave.closeness,
       smoothness: shave.smoothness,
       comfort: shave.comfort,
+      latherQuality: shave.latherQuality,
+      moisturizing: shave.moisturizing,
+      scentLongevity: shave.scentLongevity,
+      edgeDulling: shave.edgeDulling,
       notes: shave.notes,
       ownerName: user.name,
     })

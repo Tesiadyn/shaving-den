@@ -131,6 +131,15 @@ export const item = sqliteTable(
      */
     bladeInstalledAt: integer("blade_installed_at", { mode: "timestamp_ms" }),
 
+    /**
+     * 品項固有屬性，1–5 分、越高越好，依分類決定是否顯示，
+     * 定義見 shared/domain 的 CATEGORY_ITEM_ATTRIBUTES。
+     */
+    /** 僅刀架使用：兇猛度。 */
+    aggressiveness: integer("aggressiveness"),
+    /** 僅鬚刷使用：含水量。 */
+    waterRetention: integer("water_retention"),
+
     acquiredAt: integer("acquired_at", { mode: "timestamp_ms" }),
     createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
@@ -154,11 +163,16 @@ export const shave = sqliteTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     shavedAt: integer("shaved_at", { mode: "timestamp_ms" }).notNull(),
-    // 感受評分，全部 1–5 且越高越好，未填為 null。定義見 shared/domain 的 SHAVE_RATINGS。
+    // 感受評分，全部 1–5 且越高越好，未填為 null。
+    // 固定四項定義見 shared/domain 的 SHAVE_RATINGS，依用到的品項分類加碼的欄位見 CATEGORY_SHAVE_RATINGS。
     rating: integer("rating"),
     closeness: integer("closeness"),
     smoothness: integer("smoothness"),
     comfort: integer("comfort"),
+    latherQuality: integer("lather_quality"),
+    moisturizing: integer("moisturizing"),
+    scentLongevity: integer("scent_longevity"),
+    edgeDulling: integer("edge_dulling"),
     notes: text("notes"),
     createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()

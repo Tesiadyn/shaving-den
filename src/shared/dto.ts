@@ -23,6 +23,10 @@ export type ItemDTO = {
   /** 目前這一片／這一塊的使用次數（刀片才有意義）。 */
   currentUnitUses: number;
   bladeInstalledAt: number | null;
+  /** 僅刀架有意義，見 CATEGORY_ITEM_ATTRIBUTES。 */
+  aggressiveness: number | null;
+  /** 僅鬚刷有意義，見 CATEGORY_ITEM_ATTRIBUTES。 */
+  waterRetention: number | null;
   acquiredAt: number | null;
   createdAt: number;
 };
@@ -35,6 +39,11 @@ export type ShaveDTO = {
   closeness: number | null;
   smoothness: number | null;
   comfort: number | null;
+  /** 依用到的品項分類加碼的評分，見 CATEGORY_SHAVE_RATINGS。 */
+  latherQuality: number | null;
+  moisturizing: number | null;
+  scentLongevity: number | null;
+  edgeDulling: number | null;
   notes: string | null;
   items: Array<Pick<ItemDTO, "id" | "category" | "brand" | "name" | "imageUrl">>;
   /** 這篇日誌的分享連結 id；未分享過為 null。 */
@@ -110,6 +119,8 @@ export type PublicShareItemDTO = Pick<
   | "usesCount"
   | "currentUnitUses"
   | "acquiredAt"
+  | "aggressiveness"
+  | "waterRetention"
 >;
 
 export type PublicShareDTO = {
@@ -128,6 +139,10 @@ export type PublicShaveDTO = {
   closeness: number | null;
   smoothness: number | null;
   comfort: number | null;
+  latherQuality: number | null;
+  moisturizing: number | null;
+  scentLongevity: number | null;
+  edgeDulling: number | null;
   notes: string | null;
   items: Array<Pick<ItemDTO, "id" | "category" | "brand" | "name" | "imageUrl">>;
 };

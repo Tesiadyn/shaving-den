@@ -5,7 +5,7 @@ import { api } from "../lib/api";
 import {
   CATEGORY_LABELS,
   ITEM_CATEGORIES,
-  SHAVE_RATINGS,
+  shaveRatingsFor,
 } from "@/shared/domain";
 import type { ShaveDTO } from "@/shared/dto";
 import { formatDate, relativeDays } from "../lib/format";
@@ -29,10 +29,12 @@ export function ShaveEntry({
       ITEM_CATEGORIES.indexOf(a.category) - ITEM_CATEGORIES.indexOf(b.category),
   );
 
-  const scored = SHAVE_RATINGS.flatMap((scale) => {
-    const value = shave[scale.key];
-    return value === null ? [] : [{ ...scale, value }];
-  });
+  const scored = shaveRatingsFor(shave.items.map((it) => it.category)).flatMap(
+    (scale) => {
+      const value = shave[scale.key];
+      return value === null ? [] : [{ ...scale, value }];
+    },
+  );
 
   return (
     <Card className="p-4">

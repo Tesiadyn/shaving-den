@@ -11,6 +11,9 @@ const optionalText = (max: number) =>
     .nullable()
     .default(null);
 
+/** 感受評分：1–5，越高越好，沒填就是 null。 */
+const ratingValue = z.int().min(1).max(5).nullable().default(null);
+
 export const itemInputSchema = z.object({
   category: z.enum(ITEM_CATEGORIES),
   brand: z.string().trim().min(1, "請填品牌").max(80),
@@ -26,6 +29,10 @@ export const itemInputSchema = z.object({
     .nullable()
     .default(null),
   acquiredAt: z.int().nullable().default(null),
+  /** 僅刀架使用，見 shared/domain 的 CATEGORY_ITEM_ATTRIBUTES。 */
+  aggressiveness: ratingValue,
+  /** 僅鬚刷使用，見 shared/domain 的 CATEGORY_ITEM_ATTRIBUTES。 */
+  waterRetention: ratingValue,
 });
 
 export type ItemInput = z.infer<typeof itemInputSchema>;
@@ -37,9 +44,6 @@ export const itemListQuerySchema = z.object({
   status: z.enum(ITEM_STATUSES).optional(),
 });
 
-/** 感受評分：1–5，越高越好，沒填就是 null。 */
-const ratingValue = z.int().min(1).max(5).nullable().default(null);
-
 export const shaveInputSchema = z.object({
   /** epoch ms；UI 送當天的當地時間 00:00。 */
   shavedAt: z.int(),
@@ -47,6 +51,11 @@ export const shaveInputSchema = z.object({
   closeness: ratingValue,
   smoothness: ratingValue,
   comfort: ratingValue,
+  /** 依用到的品項分類加碼的評分，見 shared/domain 的 CATEGORY_SHAVE_RATINGS。 */
+  latherQuality: ratingValue,
+  moisturizing: ratingValue,
+  scentLongevity: ratingValue,
+  edgeDulling: ratingValue,
   notes: optionalText(2000),
   itemIds: z.array(z.string().min(1)).min(1, "至少選一項用品").max(12),
 });

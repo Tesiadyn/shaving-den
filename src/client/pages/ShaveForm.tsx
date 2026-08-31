@@ -17,9 +17,9 @@ import {
 import {
   CATEGORY_LABELS,
   ITEM_CATEGORIES,
-  SHAVE_RATINGS,
+  shaveRatingsFor,
+  type AnyShaveRatingKey,
   type ItemCategory,
-  type ShaveRatingKey,
 } from "@/shared/domain";
 import type { ItemDTO } from "@/shared/dto";
 import { fromDateInputValue, toDateInputValue } from "../lib/format";
@@ -48,14 +48,9 @@ export function ShaveForm() {
   return <Form items={items.data.items} />;
 }
 
-type Ratings = Record<ShaveRatingKey, number | null>;
+type Ratings = Partial<Record<AnyShaveRatingKey, number | null>>;
 
-const NO_RATINGS: Ratings = {
-  rating: null,
-  closeness: null,
-  smoothness: null,
-  comfort: null,
-};
+const NO_RATINGS: Ratings = {};
 
 function Form({ items }: { items: ItemDTO[] }) {
   const navigate = useNavigate();
@@ -82,6 +77,24 @@ function Form({ items }: { items: ItemDTO[] }) {
 
   const selectedIds = [...selected];
 
+  const visibleRatings = useMemo(() => {
+    const selectedCategories = items
+      .filter((it) => selected.has(it.id))
+      .map((it) => it.category);
+    return shaveRatingsFor(selectedCategories);
+  }, [items, selected]);
+
+  /** 沒被選到的分類就算表單裡還留著舊值，也一律當作沒填送出。 */
+  function ratingsPayload() {
+    const visibleKeys = new Set<AnyShaveRatingKey>(
+      visibleRatings.map((r) => r.key),
+    );
+    const entries = shaveRatingsFor(ITEM_CATEGORIES).map(
+      (r) => [r.key, visibleKeys.has(r.key) ? (ratings[r.key] ?? null) : null] as const,
+    );
+    return Object.fromEntries(entries) as Record<AnyShaveRatingKey, number | null>;
+  }
+
   function toggle(itemId: string) {
     setError(null);
     setSelected((prev) => {
@@ -95,7 +108,7 @@ function Form({ items }: { items: ItemDTO[] }) {
     mutationFn: () =>
       api.createShave({
         shavedAt: fromDateInputValue(date),
-        ...ratings,
+        ...ratingsPayload(),
         notes: notes.trim() || null,
         itemIds: selectedIds,
       }),
@@ -243,13 +256,13 @@ function Form({ items }: { items: ItemDTO[] }) {
           </p>
 
           <div className="mt-4 space-y-3">
-            {SHAVE_RATINGS.map((scale) => (
+            {visibleRatings.map((scale) => (
               <RatingInput
                 key={scale.key}
                 label={scale.label}
                 low={scale.low}
                 high={scale.high}
-                value={ratings[scale.key]}
+                value={ratings[scale.key] ?? null}
                 onChange={(value) =>
                   setRatings((prev) => ({ ...prev, [scale.key]: value }))
                 }

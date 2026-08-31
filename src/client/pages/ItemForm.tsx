@@ -8,6 +8,7 @@ import {
   ErrorNote,
   Field,
   Input,
+  RatingInput,
   Select,
   Textarea,
 } from "../components/ui";
@@ -17,7 +18,9 @@ import {
   CONSUMABLE_CATEGORIES,
   ITEM_CATEGORIES,
   ITEM_STATUSES,
+  itemAttributesFor,
   STATUS_LABELS,
+  type ItemAttributeKey,
   type ItemCategory,
   type ItemStatus,
 } from "@/shared/domain";
@@ -34,6 +37,8 @@ type FormState = {
   notes: string;
   productUrl: string;
   acquiredAt: string;
+  aggressiveness: number | null;
+  waterRetention: number | null;
 };
 
 const BLANK: FormState = {
@@ -47,6 +52,8 @@ const BLANK: FormState = {
   notes: "",
   productUrl: "",
   acquiredAt: "",
+  aggressiveness: null,
+  waterRetention: null,
 };
 
 /**
@@ -78,6 +85,8 @@ function toFormState(item: ItemDTO): FormState {
     acquiredAt: item.acquiredAt
       ? new Date(item.acquiredAt).toISOString().slice(0, 10)
       : "",
+    aggressiveness: item.aggressiveness,
+    waterRetention: item.waterRetention,
   };
 }
 
@@ -158,6 +167,8 @@ function ItemFormFields({
         acquiredAt: form.acquiredAt
           ? new Date(form.acquiredAt + "T00:00:00").getTime()
           : null,
+        aggressiveness: form.aggressiveness,
+        waterRetention: form.waterRetention,
       };
 
       return itemId ? api.updateItem(itemId, payload) : api.createItem(payload);
@@ -271,6 +282,21 @@ function ItemFormFields({
             </Select>
           </Field>
         </div>
+
+        {itemAttributesFor(form.category).length > 0 && (
+          <div className="space-y-2">
+            {itemAttributesFor(form.category).map((scale) => (
+              <RatingInput
+                key={scale.key}
+                label={scale.label}
+                low={scale.low}
+                high={scale.high}
+                value={form[scale.key as ItemAttributeKey]}
+                onChange={(v) => set(scale.key as ItemAttributeKey, v)}
+              />
+            ))}
+          </div>
+        )}
 
         <Field label="氣味描述" hint="自由文字，之後可以用它搜尋">
           <Textarea

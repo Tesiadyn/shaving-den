@@ -36,6 +36,8 @@ export function toItemDTO(row: ItemWithUses): ItemDTO {
     usesCount: row.usesCount,
     currentUnitUses: row.currentUnitUses,
     bladeInstalledAt: row.bladeInstalledAt?.getTime() ?? null,
+    aggressiveness: row.aggressiveness,
+    waterRetention: row.waterRetention,
     acquiredAt: row.acquiredAt?.getTime() ?? null,
     createdAt: row.createdAt.getTime(),
   };
@@ -49,6 +51,10 @@ export function toShaveDTO(row: ShaveRow): ShaveDTO {
     closeness: row.closeness,
     smoothness: row.smoothness,
     comfort: row.comfort,
+    latherQuality: row.latherQuality,
+    moisturizing: row.moisturizing,
+    scentLongevity: row.scentLongevity,
+    edgeDulling: row.edgeDulling,
     notes: row.notes,
     items: row.items.map((i) => ({
       id: i.id,
@@ -100,6 +106,10 @@ export function toPublicShaveDTO(row: PublicShaveShare): PublicShaveDTO {
     closeness: row.closeness,
     smoothness: row.smoothness,
     comfort: row.comfort,
+    latherQuality: row.latherQuality,
+    moisturizing: row.moisturizing,
+    scentLongevity: row.scentLongevity,
+    edgeDulling: row.edgeDulling,
     notes: row.notes,
     items: row.items.map((i) => ({
       id: i.id,
@@ -130,6 +140,8 @@ export function toPublicShareDTO(row: PublicShare): PublicShareDTO {
       imageUrl: publicImageUrlFor(row.id, it.id, it.imageKey),
       usesCount: it.usesCount,
       currentUnitUses: it.currentUnitUses,
+      aggressiveness: it.aggressiveness,
+      waterRetention: it.waterRetention,
       acquiredAt: it.acquiredAt?.getTime() ?? null,
     })),
   };

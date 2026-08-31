@@ -11,6 +11,10 @@ export type ShaveRow = {
   closeness: number | null;
   smoothness: number | null;
   comfort: number | null;
+  latherQuality: number | null;
+  moisturizing: number | null;
+  scentLongevity: number | null;
+  edgeDulling: number | null;
   notes: string | null;
   /** 這篇日誌的分享連結 id；未分享過為 null。 */
   shareId: string | null;
@@ -75,6 +79,10 @@ const shaveColumns = {
   closeness: shave.closeness,
   smoothness: shave.smoothness,
   comfort: shave.comfort,
+  latherQuality: shave.latherQuality,
+  moisturizing: shave.moisturizing,
+  scentLongevity: shave.scentLongevity,
+  edgeDulling: shave.edgeDulling,
   notes: shave.notes,
   shareId: shaveShare.id,
 };
@@ -165,6 +173,10 @@ export async function createShave(
       closeness: input.closeness,
       smoothness: input.smoothness,
       comfort: input.comfort,
+      latherQuality: input.latherQuality,
+      moisturizing: input.moisturizing,
+      scentLongevity: input.scentLongevity,
+      edgeDulling: input.edgeDulling,
       notes: input.notes,
       createdAt: new Date(),
     }),

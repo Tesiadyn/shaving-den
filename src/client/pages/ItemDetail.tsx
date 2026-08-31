@@ -6,9 +6,10 @@ import { CategoryIcon } from "../components/CategoryIcon";
 import { ImagePicker } from "../components/ImagePicker";
 import { Spinner } from "../components/Spinner";
 import { ShaveEntry } from "../components/ShaveEntry";
-import { Button, Card, ErrorNote } from "../components/ui";
+import { Button, Card, ErrorNote, RatingDots } from "../components/ui";
 import {
   CATEGORY_LABELS,
+  itemAttributesFor,
   STATUS_LABELS,
   tracksIndividualUnits,
 } from "@/shared/domain";
@@ -151,6 +152,19 @@ function Detail({ item }: { item: ItemDTO }) {
               <p className="mt-1.5 text-xs text-(--color-ink-faint)">
                 庫存 −1，使用次數從今天起重新算。
               </p>
+            </div>
+          )}
+
+          {itemAttributesFor(item.category).length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5">
+              {itemAttributesFor(item.category).map((scale) => {
+                const value = item[scale.key];
+                return (
+                  value !== null && (
+                    <RatingDots key={scale.key} label={scale.label} value={value} />
+                  )
+                );
+              })}
             </div>
           )}
 

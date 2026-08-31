@@ -64,6 +64,14 @@ export const STATUS_LABELS: Record<ItemStatus, string> = {
 export const IMAGE_SOURCES = ["og", "search", "upload"] as const;
 export type ImageSource = (typeof IMAGE_SOURCES)[number];
 
+/** 一組 1–5 分量表的共同形狀，`low`/`high` 是量表兩端的文字說明。 */
+export type RatingScale<K extends string = string> = {
+  key: K;
+  label: string;
+  low: string;
+  high: string;
+};
+
 /**
  * 每次刮鬍的感受評分，全部都是 1–5 分。
  *
@@ -74,11 +82,82 @@ export type ImageSource = (typeof IMAGE_SOURCES)[number];
  * 這份清單是單一來源：表單的輸入列與日誌的顯示都從這裡長出來，
  * 要增減指標只要改這裡加上對應的欄位。
  */
-export const SHAVE_RATINGS = [
+export const SHAVE_RATINGS: readonly RatingScale<
+  "rating" | "closeness" | "smoothness" | "comfort"
+>[] = [
   { key: "rating", label: "整體", low: "不滿意", high: "很滿意" },
   { key: "closeness", label: "刮淨度", low: "沒刮乾淨", high: "非常乾淨" },
   { key: "smoothness", label: "滑順度", low: "澀、拖刀", high: "順到底" },
   { key: "comfort", label: "舒適度", low: "刮傷、刺痛", high: "完全無感" },
-] as const;
+];
 
 export type ShaveRatingKey = (typeof SHAVE_RATINGS)[number]["key"];
+
+/**
+ * 依這次刮鬍用到的品項分類而定的加碼評分，同樣 1–5 分、越高越好。
+ * 只有選到對應分類的品項時，表單才會多顯示這些欄位。
+ */
+export const CATEGORY_SHAVE_RATINGS = {
+  soap: [
+    { key: "latherQuality", label: "起泡力", low: "很難打出泡", high: "輕鬆厚綿泡" },
+    { key: "moisturizing", label: "保濕度", low: "乾澀緊繃", high: "滋潤服貼" },
+  ],
+  aftershave: [
+    { key: "scentLongevity", label: "香味持久度", low: "很快就沒味道", high: "整天都聞得到" },
+  ],
+  blade: [
+    { key: "edgeDulling", label: "鋒利度衰退", low: "明顯變鈍", high: "跟新的一樣利" },
+  ],
+} as const satisfies Partial<Record<ItemCategory, readonly RatingScale[]>>;
+
+export type ExtraShaveRatingKey =
+  (typeof CATEGORY_SHAVE_RATINGS)[keyof typeof CATEGORY_SHAVE_RATINGS][number]["key"];
+export type AnyShaveRatingKey = ShaveRatingKey | ExtraShaveRatingKey;
+
+/**
+ * 依分類查表，回傳該分類的量表清單（沒有就是空陣列）。
+ *
+ * `CATEGORY_SHAVE_RATINGS`／`CATEGORY_ITEM_ATTRIBUTES` 都用 `as const satisfies` 宣告，
+ * 只列出實際用到的分類，型別上不是每個 `ItemCategory` 都有對應屬性；直接以任意
+ * `ItemCategory` 索引會被 TS 擋下。這個 helper 把參數型別放寬成完整的
+ * `Partial<Record<ItemCategory, ...>>` 讓索引安全，呼叫端仍傳原本較窄的常數即可。
+ */
+function scalesForCategory(
+  registry: Partial<Record<ItemCategory, readonly RatingScale[]>>,
+  category: ItemCategory,
+): readonly RatingScale[] {
+  return registry[category] ?? [];
+}
+
+/** 固定四項 + 這次用到的分類各自加碼的項目，用 key 去重。 */
+export function shaveRatingsFor(
+  categories: Iterable<ItemCategory>,
+): RatingScale<AnyShaveRatingKey>[] {
+  const scales = new Map<string, RatingScale>();
+  for (const scale of SHAVE_RATINGS) scales.set(scale.key, scale);
+  for (const category of categories) {
+    for (const scale of scalesForCategory(CATEGORY_SHAVE_RATINGS, category)) {
+      scales.set(scale.key, scale);
+    }
+  }
+  return [...scales.values()] as RatingScale<AnyShaveRatingKey>[];
+}
+
+/**
+ * 品項固有屬性：建立/編輯品項時填一次，掛在品項本身而非每篇刮鬍日誌。
+ * 依分類決定要不要顯示，同樣是 1–5 分、越高越好。
+ */
+export const CATEGORY_ITEM_ATTRIBUTES = {
+  razor: [{ key: "aggressiveness", label: "兇猛度", low: "新手向", high: "老手向" }],
+  brush: [{ key: "waterRetention", label: "含水量", low: "少", high: "多" }],
+} as const satisfies Partial<Record<ItemCategory, readonly RatingScale[]>>;
+
+export type ItemAttributeKey =
+  (typeof CATEGORY_ITEM_ATTRIBUTES)[keyof typeof CATEGORY_ITEM_ATTRIBUTES][number]["key"];
+
+/** 這個分類該顯示哪些品項固有屬性（沒有就是空陣列）。 */
+export function itemAttributesFor(
+  category: ItemCategory,
+): readonly RatingScale<ItemAttributeKey>[] {
+  return scalesForCategory(CATEGORY_ITEM_ATTRIBUTES, category) as readonly RatingScale<ItemAttributeKey>[];
+}

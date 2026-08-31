@@ -5,7 +5,7 @@ import { CategoryIcon } from "../components/CategoryIcon";
 import { ItemThumb } from "../components/ItemThumb";
 import { Spinner } from "../components/Spinner";
 import { Card, cx, EmptyState, RatingDots } from "../components/ui";
-import { CATEGORY_LABELS, ITEM_CATEGORIES, SHAVE_RATINGS } from "@/shared/domain";
+import { CATEGORY_LABELS, ITEM_CATEGORIES, shaveRatingsFor } from "@/shared/domain";
 import type { PublicShaveDTO } from "@/shared/dto";
 import { formatDate, relativeDays } from "../lib/format";
 
@@ -59,10 +59,12 @@ function Content({ shave }: { shave: PublicShaveDTO }) {
       ITEM_CATEGORIES.indexOf(a.category) - ITEM_CATEGORIES.indexOf(b.category),
   );
 
-  const scored = SHAVE_RATINGS.flatMap((scale) => {
-    const value = shave[scale.key];
-    return value === null ? [] : [{ ...scale, value }];
-  });
+  const scored = shaveRatingsFor(shave.items.map((it) => it.category)).flatMap(
+    (scale) => {
+      const value = shave[scale.key];
+      return value === null ? [] : [{ ...scale, value }];
+    },
+  );
 
   return (
     <div>

@@ -41,6 +41,8 @@ export const itemColumns = {
   imageKey: item.imageKey,
   imageSource: item.imageSource,
   bladeInstalledAt: item.bladeInstalledAt,
+  aggressiveness: item.aggressiveness,
+  waterRetention: item.waterRetention,
   acquiredAt: item.acquiredAt,
   createdAt: item.createdAt,
   updatedAt: item.updatedAt,
