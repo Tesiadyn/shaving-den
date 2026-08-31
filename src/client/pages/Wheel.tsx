@@ -13,9 +13,12 @@ import {
 } from "@/shared/domain";
 import type { ItemDTO } from "@/shared/dto";
 
-/** 轉盤只用兩色交替上色，靠分隔線與編號辨識每一格，不在轉動中的扇形上放文字。 */
+/** 轉盤兩色交替上色，扇形邊界一律走 SVG path，轉再快也不會糊。 */
 const SLICE_COLORS = ["var(--color-brass)", "var(--color-brass-soft)"];
-const SLICE_TEXT_COLORS = ["var(--color-paper)", "var(--color-ink)"];
+const SLICE_LABEL_COLORS = ["var(--color-paper)", "var(--color-ink)"];
+
+const WHEEL_CENTER = 100;
+const WHEEL_RADIUS = 98;
 
 export function Wheel() {
   const items = useQuery({
@@ -63,6 +66,8 @@ function WheelGame({ items }: { items: ItemDTO[] }) {
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<ItemDTO | null>(null);
   const [rotation, setRotation] = useState(0);
+  const [spinDurationMs, setSpinDurationMs] = useState(4400);
+  const [landKey, setLandKey] = useState(0);
 
   const rotationRef = useRef(0);
   const pendingWinnerRef = useRef<ItemDTO | null>(null);
@@ -118,17 +123,19 @@ function WheelGame({ items }: { items: ItemDTO[] }) {
 
     // 解一個「轉到第幾度，指針才會停在得獎格正中央」的角度，
     // 再疊加幾圈整轉讓動畫看起來像真的在轉，而不是瞬間跳過去。
+    // 圈數與時長都帶一點隨機，每次轉起來的手感才不會一模一樣。
     const sliceDeg = 360 / selectedItems.length;
     const targetCenter = winnerIndex * sliceDeg + sliceDeg / 2;
     const currentMod = ((rotationRef.current % 360) + 360) % 360;
     const desiredMod = (360 - targetCenter) % 360;
     const delta = (desiredMod - currentMod + 360) % 360;
-    const spins = 5;
+    const spins = 5 + Math.floor(Math.random() * 3);
     const next = rotationRef.current + spins * 360 + delta;
 
     pendingWinnerRef.current = winner;
     rotationRef.current = next;
     setResult(null);
+    setSpinDurationMs(4200 + Math.round(Math.random() * 900));
     setSpinning(true);
     setRotation(next);
   }
@@ -138,6 +145,7 @@ function WheelGame({ items }: { items: ItemDTO[] }) {
     setSpinning(false);
     setResult(pendingWinnerRef.current);
     pendingWinnerRef.current = null;
+    setLandKey((k) => k + 1);
   }
 
   return (
@@ -235,56 +243,69 @@ function WheelGame({ items }: { items: ItemDTO[] }) {
       </div>
 
       <div className="flex flex-col items-center gap-6">
-        <div className="relative size-64 shrink-0">
+        <div className="relative mx-auto aspect-square w-full max-w-[21rem]">
           <div
+            key={landKey}
             aria-hidden
-            className="absolute left-1/2 z-10 -translate-x-1/2"
+            className={cx(
+              "absolute left-1/2 z-10 -translate-x-1/2",
+              landKey > 0 && "animate-wheel-pointer-bounce",
+            )}
             style={{
-              top: -6,
+              top: -8,
               width: 0,
               height: 0,
-              borderLeft: "10px solid transparent",
-              borderRight: "10px solid transparent",
-              borderTop: "16px solid var(--color-ink)",
+              transformOrigin: "50% 0%",
+              borderLeft: "11px solid transparent",
+              borderRight: "11px solid transparent",
+              borderTop: "18px solid var(--color-ink)",
+              filter: "drop-shadow(0 1px 1px rgb(0 0 0 / 0.25))",
             }}
           />
 
           <div
             onTransitionEnd={handleTransitionEnd}
-            className="size-full rounded-full border-4 border-(--color-surface) shadow-md"
+            className={cx(
+              "size-full rounded-full shadow-lg ring-4 ring-(--color-surface)",
+              spinning && "animate-wheel-glow",
+            )}
             style={{
-              background: selectedItems.length
-                ? wheelBackground(selectedItems.length)
-                : "var(--color-line)",
               transform: `rotate(${rotation}deg)`,
-              transition: "transform 4.2s cubic-bezier(0.15, 0.6, 0.1, 1)",
+              transition: `transform ${spinDurationMs}ms cubic-bezier(0.22, 1, 0.36, 1)`,
+              willChange: "transform",
             }}
           >
-            {selectedItems.map((it, i) => {
-              const sliceDeg = 360 / selectedItems.length;
-              const angle = i * sliceDeg + sliceDeg / 2;
-              return (
-                <div
-                  key={it.id}
-                  className="absolute inset-0"
-                  style={{ transform: `rotate(${angle}deg)` }}
-                >
-                  <span
-                    className="absolute left-1/2 top-[12%] flex size-6 -translate-x-1/2 items-center justify-center rounded-full text-[11px] font-semibold"
-                    style={{
-                      background: SLICE_COLORS[i % 2],
-                      color: SLICE_TEXT_COLORS[i % 2],
-                    }}
+            <svg
+              viewBox="0 0 200 200"
+              className="block size-full overflow-visible rounded-full"
+            >
+              {selectedItems.length >= 2 ? (
+                <WheelFace items={selectedItems} />
+              ) : (
+                <>
+                  <circle
+                    cx={WHEEL_CENTER}
+                    cy={WHEEL_CENTER}
+                    r={WHEEL_RADIUS}
+                    fill="var(--color-line)"
+                  />
+                  <text
+                    x={WHEEL_CENTER}
+                    y={WHEEL_CENTER}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fontSize="10"
+                    fill="var(--color-ink-faint)"
                   >
-                    {i + 1}
-                  </span>
-                </div>
-              );
-            })}
+                    再選一項才能轉
+                  </text>
+                </>
+              )}
+            </svg>
           </div>
 
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <span className="size-5 rounded-full border-2 border-(--color-surface) bg-(--color-ink)" />
+            <span className="size-5 rounded-full border-2 border-(--color-surface) bg-(--color-ink) shadow" />
           </div>
         </div>
 
@@ -300,14 +321,10 @@ function WheelGame({ items }: { items: ItemDTO[] }) {
                 className="flex items-center gap-2 text-(--color-ink-soft)"
               >
                 <span
-                  className="flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold"
-                  style={{
-                    background: SLICE_COLORS[i % 2],
-                    color: SLICE_TEXT_COLORS[i % 2],
-                  }}
-                >
-                  {i + 1}
-                </span>
+                  aria-hidden
+                  className="size-2.5 shrink-0 rounded-full"
+                  style={{ background: SLICE_COLORS[i % 2] }}
+                />
                 <span className="truncate">
                   {it.brand} · {it.name}
                 </span>
@@ -337,12 +354,84 @@ function WheelGame({ items }: { items: ItemDTO[] }) {
   );
 }
 
-function wheelBackground(n: number): string {
+/** 每個扇形一律用 SVG path 算，圖片與品名貼著半徑放（像實體轉盤一樣沿著扇形轉），
+ * 這樣不管有幾格都不會互相疊字，也不用另外處理旋轉後文字倒著讀的問題。 */
+function WheelFace({ items }: { items: ItemDTO[] }) {
+  const n = items.length;
   const sliceDeg = 360 / n;
-  const stops = Array.from({ length: n }, (_, i) => {
-    const color = SLICE_COLORS[i % 2];
-    return `${color} ${i * sliceDeg}deg ${(i + 1) * sliceDeg}deg`;
-  }).join(", ");
-  const lines = `repeating-conic-gradient(from 0deg, var(--color-line) 0deg 1deg, transparent 1deg ${sliceDeg}deg)`;
-  return `${lines}, conic-gradient(from 0deg, ${stops})`;
+  const contentRadius = 60;
+  const halfChord =
+    contentRadius * Math.sin((sliceDeg * Math.PI) / 360) * 2 - 6;
+  const boxWidth = Math.max(24, Math.min(56, halfChord));
+  const compact = boxWidth < 34;
+
+  return (
+    <>
+      {items.map((it, i) => (
+        <path
+          key={it.id}
+          d={slicePath(i, n)}
+          fill={SLICE_COLORS[i % 2]}
+          stroke="var(--color-surface)"
+          strokeWidth={2.5}
+        />
+      ))}
+      <circle
+        cx={WHEEL_CENTER}
+        cy={WHEEL_CENTER}
+        r={WHEEL_RADIUS}
+        fill="none"
+        stroke="var(--color-surface)"
+        strokeWidth={3}
+      />
+      {items.map((it, i) => {
+        const angle = i * sliceDeg + sliceDeg / 2;
+        return (
+          <g key={it.id} transform={`rotate(${angle} ${WHEEL_CENTER} ${WHEEL_CENTER})`}>
+            <foreignObject
+              x={WHEEL_CENTER - boxWidth / 2}
+              y={14}
+              width={boxWidth}
+              height={70}
+            >
+              <div
+                {...{ xmlns: "http://www.w3.org/1999/xhtml" }}
+                className="flex flex-col items-center gap-1"
+              >
+                <ItemThumb
+                  category={it.category}
+                  imageUrl={it.imageUrl}
+                  className={compact ? "size-7" : "size-9"}
+                />
+                <span
+                  className="max-w-full truncate text-center leading-tight font-semibold"
+                  style={{
+                    color: SLICE_LABEL_COLORS[i % 2],
+                    fontSize: compact ? "6px" : "7.5px",
+                  }}
+                >
+                  {it.name}
+                </span>
+              </div>
+            </foreignObject>
+          </g>
+        );
+      })}
+    </>
+  );
+}
+
+function slicePath(index: number, total: number): string {
+  const sliceDeg = 360 / total;
+  const toXY = (deg: number): readonly [number, number] => {
+    const rad = ((deg - 90) * Math.PI) / 180;
+    return [
+      WHEEL_CENTER + WHEEL_RADIUS * Math.cos(rad),
+      WHEEL_CENTER + WHEEL_RADIUS * Math.sin(rad),
+    ];
+  };
+  const [x1, y1] = toXY(index * sliceDeg);
+  const [x2, y2] = toXY((index + 1) * sliceDeg);
+  const largeArc = sliceDeg > 180 ? 1 : 0;
+  return `M ${WHEEL_CENTER} ${WHEEL_CENTER} L ${x1.toFixed(3)} ${y1.toFixed(3)} A ${WHEEL_RADIUS} ${WHEEL_RADIUS} 0 ${largeArc} 1 ${x2.toFixed(3)} ${y2.toFixed(3)} Z`;
 }
