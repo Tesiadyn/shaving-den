@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../lib/api";
 import { CategoryIcon } from "../components/CategoryIcon";
@@ -24,9 +24,12 @@ export function ShavePublic() {
     <div className="min-h-full">
       <header className="border-b border-(--color-line)">
         <div className="mx-auto flex h-14 max-w-2xl items-center px-4 sm:px-6">
-          <span className="text-sm font-semibold tracking-tight text-(--color-ink)">
+          <Link
+            to="/"
+            className="text-sm font-semibold tracking-tight text-(--color-ink)"
+          >
             Shaving Den
-          </span>
+          </Link>
         </div>
       </header>
 
