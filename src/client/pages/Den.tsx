@@ -5,7 +5,7 @@ import { api } from "../lib/api";
 import { CategoryIcon } from "../components/CategoryIcon";
 import { ItemCard } from "../components/ItemCard";
 import { Spinner } from "../components/Spinner";
-import { Button, EmptyState, ErrorNote, Input, cx } from "../components/ui";
+import { Button, EmptyState, ErrorNote, cx } from "../components/ui";
 import {
   CATEGORY_LABELS,
   ITEM_CATEGORIES,
@@ -45,11 +45,34 @@ export function Den() {
 
   return (
     <div>
+      <div className="mb-8 flex items-center gap-5">
+        <div className="flex size-14 shrink-0 items-center justify-center rounded-full border-[1.5px] border-(--color-brass) font-serif text-lg font-semibold tracking-wide text-(--color-brass)">
+          SD
+        </div>
+        <div>
+          <p className="mb-1.5 text-[11.5px] font-semibold tracking-[3px] text-(--color-brass) uppercase">
+            Shaving Den Collection
+          </p>
+          <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
+            收藏
+          </h1>
+          <p className="mt-1.5 text-sm text-(--color-ink-soft)">
+            你的濕刮武備，細細收藏、靜靜陳列。
+          </p>
+        </div>
+      </div>
+
       <div className="mb-6 flex flex-wrap items-center gap-3">
-        <h1 className="font-serif text-2xl font-semibold tracking-tight">
-          收藏
-        </h1>
-        <div className="ml-auto flex gap-2">
+        <label className="flex min-w-60 flex-1 items-center gap-3 rounded-md border border-(--color-brass)/28 bg-(--color-surface) px-4.5 py-3 shadow-[inset_0_1px_3px_rgba(0,0,0,.3)]">
+          <SearchIcon className="size-4 shrink-0 text-(--color-ink-faint)" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="搜尋品牌、品名或氣味…"
+            className="w-full bg-transparent text-sm text-(--color-ink) outline-none placeholder:text-(--color-ink-faint)"
+          />
+        </label>
+        <div className="flex gap-2">
           <Link to="/den/wheel">
             <Button>轉盤抽籤</Button>
           </Link>
@@ -73,34 +96,25 @@ export function Den() {
       {all && (
         <>
           {all.length > 0 && (
-            <div className="mb-6 space-y-3">
-              <div className="flex flex-wrap gap-2">
+            <div className="mb-6 flex flex-wrap gap-3.5">
+              <FilterButton
+                active={category === null}
+                count={all.length}
+                onClick={() => setCategory(null)}
+              >
+                全部
+              </FilterButton>
+              {ITEM_CATEGORIES.filter((c) => counts.has(c)).map((c) => (
                 <FilterButton
-                  active={category === null}
-                  count={all.length}
-                  onClick={() => setCategory(null)}
+                  key={c}
+                  active={category === c}
+                  count={counts.get(c) ?? 0}
+                  icon={<CategoryIcon category={c} className="size-4" />}
+                  onClick={() => setCategory(category === c ? null : c)}
                 >
-                  全部
+                  {CATEGORY_LABELS[c]}
                 </FilterButton>
-                {ITEM_CATEGORIES.filter((c) => counts.has(c)).map((c) => (
-                  <FilterButton
-                    key={c}
-                    active={category === c}
-                    count={counts.get(c) ?? 0}
-                    icon={<CategoryIcon category={c} className="size-4" />}
-                    onClick={() => setCategory(category === c ? null : c)}
-                  >
-                    {CATEGORY_LABELS[c]}
-                  </FilterButton>
-                ))}
-              </div>
-
-              <Input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="搜尋品牌、品名或氣味…"
-                className="max-w-sm"
-              />
+              ))}
             </div>
           )}
 
@@ -169,10 +183,10 @@ function FilterButton({
       aria-pressed={active}
       onClick={onClick}
       className={cx(
-        "inline-flex items-center gap-2 rounded-xl border px-3.5 py-2.5 text-sm whitespace-nowrap transition",
+        "inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-medium whitespace-nowrap transition",
         active
           ? "border-(--color-brass) bg-(--color-brass) text-(--color-paper)"
-          : "border-(--color-line) bg-(--color-surface) text-(--color-ink) hover:border-(--color-brass)",
+          : "border-(--color-brass)/32 text-(--color-ink-soft) hover:border-(--color-brass)",
       )}
     >
       {icon && (
@@ -185,5 +199,23 @@ function FilterButton({
         {count}
       </span>
     </button>
+  );
+}
+
+function SearchIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <circle cx="11" cy="11" r="6" />
+      <path d="M20 20l-4.5-4.5" />
+    </svg>
   );
 }

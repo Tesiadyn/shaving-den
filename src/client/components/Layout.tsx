@@ -12,16 +12,16 @@ export function Layout() {
 
   return (
     <div className="min-h-full">
-      <header className="sticky top-0 z-20 border-b border-(--color-line) bg-(--color-paper)/90 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-5xl items-center gap-10 px-4 sm:px-6">
-          <NavLink
-            to="/den"
-            className="font-serif text-lg font-semibold tracking-[0.15em] text-(--color-brass) uppercase"
-          >
-            Shaving Den
+      <header className="sticky top-0 z-20 border-b border-(--color-brass)/40 bg-[linear-gradient(180deg,var(--color-surface),var(--color-paper))] shadow-[0_1px_0_rgba(0,0,0,.5)]">
+        <div className="mx-auto flex h-16 max-w-5xl items-center gap-8 px-4 sm:px-6">
+          <NavLink to="/den" className="flex shrink-0 items-center gap-3">
+            <BrandMark className="size-[22px] text-(--color-brass)" />
+            <span className="font-serif text-lg font-semibold tracking-[0.15em] text-(--color-brass) uppercase">
+              Shaving Den
+            </span>
           </NavLink>
 
-          <nav className="flex items-center gap-8">
+          <nav className="flex flex-1 items-center justify-center gap-10">
             {NAV.map((n) => (
               <NavLink
                 key={n.to}
@@ -39,20 +39,24 @@ export function Layout() {
             ))}
           </nav>
 
-          <div className="ml-auto flex items-center gap-3">
-            {user?.image && (
+          <div className="flex shrink-0 items-center gap-4">
+            {user?.image ? (
               <img
                 src={user.image}
                 alt=""
                 referrerPolicy="no-referrer"
-                className="size-8 rounded-full border-[1.5px] border-(--color-brass)"
+                className="size-[34px] rounded-full border-[1.5px] border-(--color-brass)"
               />
+            ) : (
+              <div className="flex size-[34px] items-center justify-center rounded-full border-[1.5px] border-(--color-brass) bg-(--color-surface) font-serif text-sm font-semibold text-(--color-brass)">
+                {(user?.name?.trim()?.[0] ?? "?").toUpperCase()}
+              </div>
             )}
             <button
               type="button"
               onClick={() => signOut()}
               title="登出"
-              className="flex size-8 items-center justify-center rounded-full border border-(--color-line) text-(--color-ink-faint) transition hover:border-(--color-brass) hover:text-(--color-brass)"
+              className="flex size-8 items-center justify-center rounded-full border border-(--color-brass)/40 text-(--color-ink-soft) transition hover:border-(--color-brass) hover:text-(--color-brass)"
             >
               <LogoutIcon />
             </button>
@@ -64,6 +68,26 @@ export function Layout() {
         <Outlet />
       </div>
     </div>
+  );
+}
+
+function BrandMark({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M4 14 L15 5" />
+      <path d="M15 5 L20 4 L19 9 L9 17" />
+      <path d="M4 14 L9 17" />
+      <path d="M9 17 L6 20" />
+    </svg>
   );
 }
 
