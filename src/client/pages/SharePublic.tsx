@@ -29,7 +29,7 @@ export function SharePublic() {
         <div className="mx-auto flex h-14 max-w-5xl items-center px-4 sm:px-6">
           <Link
             to="/"
-            className="text-sm font-semibold tracking-tight text-(--color-ink)"
+            className="font-serif text-sm font-semibold tracking-[0.15em] text-(--color-brass) uppercase"
           >
             Shaving Den
           </Link>

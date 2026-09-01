@@ -56,7 +56,7 @@ export function ShaveEntry({
               type="button"
               onClick={onDelete}
               disabled={deleting}
-              className="text-xs text-(--color-ink-faint) transition hover:text-red-600 disabled:opacity-50 dark:hover:text-red-400"
+              className="text-xs text-(--color-ink-faint) transition hover:text-red-400 disabled:opacity-50"
             >
               {deleting ? "刪除中…" : "刪除"}
             </button>

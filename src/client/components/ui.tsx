@@ -12,16 +12,15 @@ export function cx(...parts: Array<string | false | null | undefined>) {
 }
 
 const BUTTON_BASE =
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium whitespace-nowrap transition disabled:cursor-not-allowed disabled:opacity-55";
+  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium whitespace-nowrap transition disabled:cursor-not-allowed disabled:opacity-55";
 
 const BUTTON_VARIANTS = {
   primary:
-    "bg-(--color-ink) text-(--color-paper) hover:opacity-88 shadow-xs",
+    "border border-(--color-brass) bg-(--color-brass) text-(--color-paper) hover:brightness-105 shadow-xs",
   secondary:
     "border border-(--color-line) bg-(--color-surface) text-(--color-ink) hover:border-(--color-brass)",
   ghost: "text-(--color-ink-soft) hover:bg-(--color-brass-soft) hover:text-(--color-ink)",
-  danger:
-    "border border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/40",
+  danger: "border border-red-900 text-red-400 hover:bg-red-950/40",
 } as const;
 
 export function Button({
@@ -41,7 +40,7 @@ export function Button({
 }
 
 const CONTROL =
-  "w-full rounded-lg border border-(--color-line) bg-(--color-surface) px-3 py-2 text-sm text-(--color-ink) transition placeholder:text-(--color-ink-faint) focus:border-(--color-brass) focus:outline-none";
+  "w-full rounded-md border border-(--color-line) bg-(--color-surface) px-3.5 py-2.5 text-sm text-(--color-ink) transition placeholder:text-(--color-ink-faint) focus:border-(--color-brass) focus:outline-none";
 
 export function Input({
   className,
@@ -89,9 +88,7 @@ export function Field({
         </span>
       )}
       {error && (
-        <span className="mt-1 block text-xs text-red-600 dark:text-red-400">
-          {error}
-        </span>
+        <span className="mt-1 block text-xs text-red-400">{error}</span>
       )}
     </label>
   );
@@ -110,7 +107,7 @@ export function Card({
     <div
       style={style}
       className={cx(
-        "rounded-xl border border-(--color-line) bg-(--color-surface)",
+        "rounded-lg border border-(--color-line) bg-(--color-surface)",
         className,
       )}
     >
@@ -129,21 +126,21 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-dashed border-(--color-line) px-6 py-14 text-center">
-      <p className="text-sm font-medium text-(--color-ink)">{title}</p>
+    <div className="rounded-lg border border-dashed border-(--color-line) px-6 py-16 text-center">
+      <p className="font-serif text-lg text-(--color-ink)">{title}</p>
       {description && (
-        <p className="mx-auto mt-1.5 max-w-sm text-sm text-(--color-ink-soft)">
+        <p className="mx-auto mt-2 max-w-sm text-sm text-(--color-ink-soft)">
           {description}
         </p>
       )}
-      {action && <div className="mt-5 flex justify-center">{action}</div>}
+      {action && <div className="mt-6 flex justify-center">{action}</div>}
     </div>
   );
 }
 
 export function ErrorNote({ children }: { children: ReactNode }) {
   return (
-    <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+    <p className="rounded-md border border-red-900 bg-red-950/40 px-3.5 py-2.5 text-sm text-red-300">
       {children}
     </p>
   );

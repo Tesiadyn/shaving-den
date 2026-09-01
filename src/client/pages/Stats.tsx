@@ -33,7 +33,9 @@ export function Stats() {
 
   return (
     <div>
-      <h1 className="mb-6 text-xl font-semibold tracking-tight">統計</h1>
+      <h1 className="mb-6 font-serif text-2xl font-semibold tracking-tight">
+        統計
+      </h1>
 
       <div className="grid grid-cols-3 gap-3">
         <Headline label="總刮鬍次數" value={stats.totalShaves} />
@@ -153,7 +155,7 @@ function LowStockSection({ lowStock }: { lowStock: StatsDTO["lowStock"] }) {
               className={
                 "tabular-nums " +
                 (it.quantity === 0
-                  ? "font-semibold text-red-600 dark:text-red-400"
+                  ? "font-semibold text-red-400"
                   : "text-(--color-brass)")
               }
             >

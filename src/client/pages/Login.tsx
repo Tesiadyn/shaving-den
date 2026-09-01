@@ -23,7 +23,7 @@ export function Login() {
           <div className="mb-5 flex justify-center">
             <RazorMark />
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-(--color-ink)">
+          <h1 className="font-serif text-xl font-semibold tracking-[0.15em] text-(--color-brass) uppercase">
             Shaving Den
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-(--color-ink-soft)">
@@ -44,9 +44,7 @@ export function Login() {
         </button>
 
         {error && (
-          <p className="mt-4 text-center text-sm text-red-600 dark:text-red-400">
-            {error}
-          </p>
+          <p className="mt-4 text-center text-sm text-red-400">{error}</p>
         )}
       </div>
     </main>

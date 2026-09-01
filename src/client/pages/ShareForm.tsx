@@ -115,7 +115,9 @@ function Form({ items }: { items: ItemDTO[] }) {
 
   return (
     <div className="max-w-3xl">
-      <h1 className="mb-6 text-xl font-semibold tracking-tight">分享收藏</h1>
+      <h1 className="mb-6 font-serif text-2xl font-semibold tracking-tight">
+        分享收藏
+      </h1>
 
       {createdId && shareUrl ? (
         <Card className="animate-rise-fade p-5">

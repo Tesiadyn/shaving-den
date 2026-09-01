@@ -158,7 +158,9 @@ function Form({ items }: { items: ItemDTO[] }) {
       }}
       className="max-w-3xl"
     >
-      <h1 className="mb-6 text-xl font-semibold tracking-tight">記一次刮鬍</h1>
+      <h1 className="mb-6 font-serif text-2xl font-semibold tracking-tight">
+        記一次刮鬍
+      </h1>
 
       <div className="space-y-8">
         <Field label="日期">

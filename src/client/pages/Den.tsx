@@ -46,7 +46,9 @@ export function Den() {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center gap-3">
-        <h1 className="text-xl font-semibold tracking-tight">收藏</h1>
+        <h1 className="font-serif text-2xl font-semibold tracking-tight">
+          收藏
+        </h1>
         <div className="ml-auto flex gap-2">
           <Link to="/den/wheel">
             <Button>轉盤抽籤</Button>
@@ -169,7 +171,7 @@ function FilterButton({
       className={cx(
         "inline-flex items-center gap-2 rounded-xl border px-3.5 py-2.5 text-sm whitespace-nowrap transition",
         active
-          ? "border-(--color-ink) bg-(--color-ink) text-(--color-paper)"
+          ? "border-(--color-brass) bg-(--color-brass) text-(--color-paper)"
           : "border-(--color-line) bg-(--color-surface) text-(--color-ink) hover:border-(--color-brass)",
       )}
     >

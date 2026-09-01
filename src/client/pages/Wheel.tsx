@@ -150,7 +150,9 @@ function WheelGame({ items }: { items: ItemDTO[] }) {
 
   return (
     <div className="max-w-xl">
-      <h1 className="mb-1 text-xl font-semibold tracking-tight">轉盤抽籤</h1>
+      <h1 className="mb-1 font-serif text-2xl font-semibold tracking-tight">
+        轉盤抽籤
+      </h1>
       <p className="mb-6 text-sm text-(--color-ink-soft)">
         選同一分類的兩項以上，轉一下決定今天用哪個。
       </p>
@@ -165,7 +167,7 @@ function WheelGame({ items }: { items: ItemDTO[] }) {
             className={cx(
               "inline-flex items-center gap-2 rounded-xl border px-3.5 py-2.5 text-sm transition",
               category === c
-                ? "border-(--color-ink) bg-(--color-ink) text-(--color-paper)"
+                ? "border-(--color-brass) bg-(--color-brass) text-(--color-paper)"
                 : "border-(--color-line) bg-(--color-surface) text-(--color-ink) hover:border-(--color-brass)",
             )}
           >

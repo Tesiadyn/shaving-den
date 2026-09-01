@@ -211,7 +211,7 @@ function ItemFormFields({
       }}
       className="max-w-2xl"
     >
-      <h1 className="mb-6 text-xl font-semibold tracking-tight">
+      <h1 className="mb-6 font-serif text-2xl font-semibold tracking-tight">
         {isEdit ? "編輯用品" : "新增用品"}
       </h1>
 

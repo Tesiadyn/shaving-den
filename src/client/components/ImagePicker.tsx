@@ -145,7 +145,7 @@ export function ImagePicker({ item }: { item: ItemDTO }) {
             className={cx(
               "rounded-full px-3 py-1 text-xs transition",
               mode === m.id
-                ? "bg-(--color-ink) text-(--color-paper)"
+                ? "bg-(--color-brass) text-(--color-paper)"
                 : "border border-(--color-line) text-(--color-ink-soft) hover:border-(--color-brass)",
             )}
           >

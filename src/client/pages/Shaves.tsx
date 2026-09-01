@@ -31,7 +31,9 @@ export function Shaves() {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center gap-3">
-        <h1 className="text-xl font-semibold tracking-tight">刮鬍日誌</h1>
+        <h1 className="font-serif text-2xl font-semibold tracking-tight">
+          刮鬍日誌
+        </h1>
         <Link to="/shaves/new" className="ml-auto">
           <Button variant="primary">記一次刮鬍</Button>
         </Link>
