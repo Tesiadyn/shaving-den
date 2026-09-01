@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap");
 
 @theme {
   --font-sans: "Noto Sans TC", "Noto Sans", ui-sans-serif, system-ui,
